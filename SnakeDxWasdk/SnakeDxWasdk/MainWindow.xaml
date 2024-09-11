@@ -8,7 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <SwapChainPanel x:Name="swapChainPanel"
+                    SizeChanged="swapChainPanel_SizeChanged">
         <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-    </StackPanel>
+    </SwapChainPanel>
 </Window>
