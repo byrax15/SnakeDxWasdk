@@ -12,18 +12,15 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::SnakeDxWasdk::implementation
 {
-    int32_t MainWindow::MyProperty()
-    {
-        throw hresult_not_implemented();
-    }
-
-    void MainWindow::MyProperty(int32_t /* value */)
-    {
-        throw hresult_not_implemented();
-    }
-
     void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
-        myButton().Content(box_value(L"Clicked"));
+        static auto start_value = myButton().Content();
+        static auto hello = box_value(L"Your mom");
+        static auto toggle = false;
+        if (toggle)
+            myButton().Content(hello);
+        else 
+            myButton().Content(start_value);
+        toggle = !toggle;
     }
 }
