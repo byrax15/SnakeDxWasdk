@@ -11,6 +11,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SnakeDx.ixx" />
+    <ClCompile Include="Token.ixx" />
+    <ClCompile Include="Synchronized.ixx" />
+    <ClCompile Include="Resources.ixx" />
+    <ClCompile Include="pch.h">
+      <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="Scheduler.ixx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

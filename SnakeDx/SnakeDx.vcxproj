@@ -195,10 +195,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Resources.ixx" />
+    <ClCompile Include="Scheduler.ixx" />
     <ClCompile Include="SnakeDx.ixx" />
+    <ClCompile Include="Synchronized.ixx" />
+    <ClCompile Include="Token.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dx11.h" />
+    <ClCompile Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
