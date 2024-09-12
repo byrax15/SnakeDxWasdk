@@ -195,8 +195,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Resources.cpp" />
-    <ClCompile Include="Resources.ixx" />
+    <ClCompile Include="SnakeDx.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dx11.h" />

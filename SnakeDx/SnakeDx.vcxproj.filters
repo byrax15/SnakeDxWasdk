@@ -5,20 +5,19 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Units">
-      <UniqueIdentifier>{af1597f6-e204-4223-9192-bcc0a9669c6e}</UniqueIdentifier>
+    <Filter Include="PCH">
+      <UniqueIdentifier>{d32ead28-addd-4cf1-a8de-cbf33b1d0d67}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Resources.ixx" />
-    <ClCompile Include="Resources.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="dx11.h">
-      <Filter>Header Units</Filter>
-    </ClInclude>
+    <ClCompile Include="SnakeDx.ixx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dx11.h">
+      <Filter>PCH</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

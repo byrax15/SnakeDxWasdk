@@ -4,7 +4,7 @@
 
 #include "MainWindow.g.cpp"
 
-import Resources;
+import SnakeDx;
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -28,7 +28,7 @@ void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& size)
 {
-    SnakeDx::singleton.WithLock([&](SnakeDx::Resources& r) { return; });
+    SnakeDx::scheduler.dxResources.WithLock([&](SnakeDx::Resources& r) { return; });
 }
 
 }
