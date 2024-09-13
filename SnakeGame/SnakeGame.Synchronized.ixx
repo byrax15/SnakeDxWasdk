@@ -4,17 +4,36 @@ import std;
 
 namespace SnakeGame {
 
+template <typename F, typename... Args>
+using call_result_t = decltype(std::declval<F>()(std::declval<Args>()...));
+
+template <typename F, typename... Args>
+constexpr bool void_function_v = std::is_invocable_v<F, Args...> && std::is_void_v<call_result_t<F, Args...>>;
+
+template <typename F, typename... Args>
+constexpr bool non_void_function_v = std::is_invocable_v<F, Args...> && !std::is_void_v<call_result_t<F, Args...>>;
+
 export template <typename T>
 class Synchronized {
-    mutable std::mutex m {};
+    std::mutex m {};
     T owned;
 
 public:
+    using value_type = T;
+
+    template <typename F>
+    using bool_result = std::enable_if_t<void_function_v<F, T&>, bool>;
+
+    template <typename F>
+    using optional_result = std::enable_if_t<non_void_function_v<F, T&>, std::optional<call_result_t<F, T&>>>;
+
     template <typename... Args>
     Synchronized(Args&&... args)
         : owned(std::forward<Args>(args)...)
     {
     }
+
+    T const& operator*() const { return owned; }
 
     auto Lock(std::invocable<T&> auto&& callable)
     {
@@ -22,29 +41,26 @@ public:
         return callable(owned);
     }
 
-    auto Lock(std::invocable<T const&> auto&& callable) const
+    template <typename F>
+    bool_result<F> TryLock(F&& callable)
     {
-        std::scoped_lock l(m);
-        return callable(owned);
-    }
-
-    auto TryLock(std::invocable<T&> auto&& callable)
-    {
-        std::scoped_lock l(m, std::defer_lock);
-        if (std::try_lock(l)) {
-            return callable(owned);
+        std::unique_lock l(m, std::defer_lock);
+        if (l.try_lock()) {
+            callable(owned);
+            return true;
         } else {
-            return std::nullopt;
+            return false;
         }
     }
 
-    auto TryLock(std::invocable<T const&> auto&& callable) const
+    template <typename F>
+    optional_result<F> TryLock(F&& callable)
     {
-        std::scoped_lock l(m, std::defer_lock);
-        if (std::try_lock(l)) {
+        std::unique_lock l(m, std::defer_lock);
+        if (l.try_lock()) {
             return callable(owned);
         } else {
-            return std::nullopt;
+            return false;
         }
     }
 };

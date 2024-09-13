@@ -28,11 +28,11 @@ void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
 {
-    SnakeDx::scheduler.Resources().Lock([&](SnakeDx::Resources & r) {
-        static std::mt19937 g;
-        std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
-        r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
-    });
+    for (char i = 0; i < 5; ++i)
+        if (SnakeDx::scheduler.Resources().TryLock([&](SnakeDx::Resources& r) {
+                r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
+            }))
+            break;
 }
 
 }
