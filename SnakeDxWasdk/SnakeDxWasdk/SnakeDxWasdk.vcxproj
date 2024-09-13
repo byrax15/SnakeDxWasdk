@@ -142,6 +142,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="SnakeDx.ixx" />
+    <ClCompile Include="SnakeDx.Resources.cpp" />
+    <ClCompile Include="SnakeDx.Resources.ixx" />
+    <ClCompile Include="SnakeDx.Scheduler.ixx" />
+    <ClCompile Include="SnakeDx.Token.ixx" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl">
@@ -158,8 +163,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SnakeDx\SnakeDx.vcxproj">
-      <Project>{caa47c0a-e46c-4a81-be70-aa737005fab8}</Project>
+    <ProjectReference Include="..\..\SnakeGame\SnakeGame.vcxproj">
+      <Project>{4b440851-227a-49c3-98ba-b832aadc6ea6}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

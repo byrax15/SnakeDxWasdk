@@ -1,6 +1,10 @@
+module;
+#include "pch.h"
 export module SnakeDx:Token;
 
 namespace SnakeDx {
-struct token_t {
+
+struct Token {
 } token;
+
 }

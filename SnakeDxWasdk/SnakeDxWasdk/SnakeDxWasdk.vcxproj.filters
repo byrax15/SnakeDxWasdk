@@ -12,6 +12,19 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="SnakeDx.Resources.ixx">
+      <Filter>SnakeDx</Filter>
+    </ClCompile>
+    <ClCompile Include="SnakeDx.Resources.cpp" />
+    <ClCompile Include="SnakeDx.ixx">
+      <Filter>SnakeDx</Filter>
+    </ClCompile>
+    <ClCompile Include="SnakeDx.Scheduler.ixx">
+      <Filter>SnakeDx</Filter>
+    </ClCompile>
+    <ClCompile Include="SnakeDx.Token.ixx">
+      <Filter>SnakeDx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -19,6 +32,9 @@
   <ItemGroup>
     <Filter Include="Assets">
       <UniqueIdentifier>{e48dc53e-40b1-40cb-970a-f89935452892}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SnakeDx">
+      <UniqueIdentifier>{19c1229d-ee54-499f-a03f-ba215cc36bef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
