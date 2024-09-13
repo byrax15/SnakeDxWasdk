@@ -6,7 +6,9 @@
 
 import SnakeDx;
 import std;
+import <chrono>;
 
+using namespace std::literals;
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 
@@ -28,11 +30,9 @@ void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
 {
-    for (char i = 0; i < 5; ++i)
-        if (SnakeDx::scheduler.Resources().TryLock([&](SnakeDx::Resources& r) {
-                r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
-            }))
-            break;
+    SnakeDx::scheduler.Resources().Lock(1ms, 8, [&](SnakeDx::Resources& r) {
+        r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
+    });
 }
 
 }

@@ -1,6 +1,8 @@
+module;
 export module SnakeGame:Synchronized;
 
 import std;
+import <chrono>;
 
 namespace SnakeGame {
 
@@ -60,7 +62,31 @@ public:
         if (l.try_lock()) {
             return callable(owned);
         } else {
-            return false;
+            return std::nullopt;
+        }
+    }
+
+    auto TryLock(std::chrono::milliseconds backoff, unsigned int max_attempts, auto&& callable)
+    {
+        auto next_backoff = backoff;
+        for (unsigned int i = 0; i < max_attempts; ++i) {
+            if (auto result = TryLock(callable); result)
+                return result;
+            next_backoff *= backoff.count();
+            std::this_thread::sleep_for(next_backoff);
+        }
+        return decltype(TryLock(callable)) {};
+    }
+
+    auto Lock(std::chrono::milliseconds backoff, unsigned int attempts_before_lock, auto&& callable)
+    {
+        if (auto result = TryLock(backoff, attempts_before_lock, callable); result) {
+            if constexpr (requires { result.value(); })
+                return result.value();
+            else
+                return;
+        } else {
+            return Lock(callable);
         }
     }
 };
