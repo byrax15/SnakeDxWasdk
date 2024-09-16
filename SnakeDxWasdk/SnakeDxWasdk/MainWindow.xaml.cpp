@@ -30,7 +30,7 @@ void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
 {
-    SnakeDx::scheduler.Resources().Lock(1ms, 8, [&](SnakeDx::Resources& r) {
+    SnakeDx::scheduler.resources.Lock(1ms, 8, [&](SnakeDx::Resources& r) {
         r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
     });
 }

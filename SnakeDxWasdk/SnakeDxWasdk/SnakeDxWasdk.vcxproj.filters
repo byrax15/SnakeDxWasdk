@@ -19,10 +19,10 @@
     <ClCompile Include="SnakeDx.ixx">
       <Filter>SnakeDx</Filter>
     </ClCompile>
-    <ClCompile Include="SnakeDx.Scheduler.ixx">
+    <ClCompile Include="SnakeDx.Token.ixx">
       <Filter>SnakeDx</Filter>
     </ClCompile>
-    <ClCompile Include="SnakeDx.Token.ixx">
+    <ClCompile Include="SnakeDx.Scheduler.ixx">
       <Filter>SnakeDx</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />

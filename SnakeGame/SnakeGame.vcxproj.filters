@@ -15,11 +15,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SnakeGame.Public.ixx">
+    <ClCompile Include="SnakeGame.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SnakeGame.Synchronized.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\SnakeDxWasdk\SnakeDxWasdk\SnakeGame.Scheduler.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
   </ItemGroup>
 </Project>
