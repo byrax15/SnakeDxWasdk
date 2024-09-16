@@ -39,6 +39,10 @@ public:
     Resources(Token);
 
     void SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel panel, winrt::Windows::Foundation::Size newSize);
+    void ResetSwapChainPanel() {
+        m_renderTargetView.put();
+        m_swapChain.put();
+    }
 
     bool Ready() const
     {
