@@ -35,9 +35,10 @@ public:
     {
     }
 
-    T const& operator*() const { return owned; }
+    T& operator*() { return owned; }
+    T* operator->() { return &owned; }
 
-    auto Lock(std::invocable<T&> auto&& callable)
+    decltype(auto) Lock(std::invocable<T&> auto&& callable)
     {
         std::scoped_lock l(m);
         return callable(owned);
@@ -66,7 +67,7 @@ public:
         }
     }
 
-    auto TryLock(std::chrono::milliseconds backoff, unsigned int max_attempts, auto&& callable)
+    decltype(auto) TryLock(std::chrono::milliseconds backoff, unsigned int max_attempts, auto&& callable)
     {
         auto next_backoff = backoff;
         for (unsigned int i = 0; i < max_attempts; ++i) {
@@ -78,7 +79,7 @@ public:
         return decltype(TryLock(callable)) {};
     }
 
-    auto Lock(std::chrono::milliseconds backoff, unsigned int attempts_before_lock, auto&& callable)
+    decltype(auto) Lock(std::chrono::milliseconds backoff, unsigned int attempts_before_lock, auto&& callable)
     {
         if (auto result = TryLock(backoff, attempts_before_lock, callable); result) {
             if constexpr (requires { result.value(); })

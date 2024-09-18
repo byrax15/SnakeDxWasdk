@@ -1,4 +1,5 @@
 export module SnakeGame;
 
 export import :Synchronized;
-export import :SchedulerT;
+export import :Scheduler;
+

@@ -1,5 +1,5 @@
 module;
-export module SnakeGame:SchedulerT;
+export module SnakeGame:Scheduler;
 
 import std;
 using namespace std::literals;
@@ -32,7 +32,7 @@ public:
                     StepFixed();
                 }
 
-                StepDelta(timestep { now - last });
+                StepDelta(now - last);
                 last = now;
             }
         })

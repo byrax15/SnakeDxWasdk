@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\SnakeDxWasdk\SnakeDxWasdk\SnakeGame.Scheduler.ixx" />
+    <ClCompile Include="ref_cast.ixx" />
     <ClCompile Include="SnakeGame.ixx" />
     <ClCompile Include="SnakeGame.Synchronized.ixx" />
   </ItemGroup>

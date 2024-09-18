@@ -3,6 +3,7 @@ module;
 export module SnakeDx:Resources;
 
 import :Token;
+import std;
 
 namespace SnakeDx {
 
@@ -27,7 +28,6 @@ public:
         std::swap(l.m_d3dDevice, r.m_d3dDevice);
         std::swap(l.m_d3dContext, r.m_d3dContext);
         std::swap(l.m_dxgiDevice, r.m_dxgiDevice);
-        // std::swap(l.m_trianglePass, r.m_trianglePass);
         std::swap(l.m_swapChain, r.m_swapChain);
         std::swap(l.m_renderTargetView, r.m_renderTargetView);
     }
@@ -37,32 +37,26 @@ public:
 
 public:
     Resources(Token);
+    bool Ready() const { return m_swapChain && m_renderTargetView; }
+
+    auto& D3DDevice() { return *m_d3dDevice; }
 
     void SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel panel, winrt::Windows::Foundation::Size newSize);
-    void ResetSwapChainPanel() {
+    void ResetSwapChainPanel()
+    {
         m_renderTargetView.put();
         m_swapChain.put();
     }
 
-    bool Ready() const
+    void Draw(auto&&... passes)
     {
-        return !!m_swapChain;
-    }
-
-    void Draw()
-    {
-        if (!m_swapChain)
-            return;
-
         std::array views { m_renderTargetView.get() };
         m_d3dContext->OMSetRenderTargets(1, views.data(), nullptr);
-
         m_d3dContext->ClearRenderTargetView(m_renderTargetView.get(), m_clearColor.data());
 
-        // m_trianglePass.Draw(*m_d3dContext);
+        (passes.Draw(*m_d3dContext), ...);
 
-        winrt::check_hresult(
-            m_swapChain->Present(1, {}));
+        winrt::check_hresult(m_swapChain->Present(1, {}));
     }
 };
 }

@@ -24,6 +24,9 @@
     <ClCompile Include="..\SnakeDxWasdk\SnakeDxWasdk\SnakeGame.Scheduler.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ref_cast.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
