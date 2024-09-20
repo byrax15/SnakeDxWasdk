@@ -52,6 +52,7 @@ public:
     {
         std::array views { m_renderTargetView.get() };
         m_d3dContext->OMSetRenderTargets(1, views.data(), nullptr);
+
         m_d3dContext->ClearRenderTargetView(m_renderTargetView.get(), m_clearColor.data());
 
         (passes.Draw(*m_d3dContext), ...);

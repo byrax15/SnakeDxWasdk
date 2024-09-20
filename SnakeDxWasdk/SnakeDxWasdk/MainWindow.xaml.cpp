@@ -30,15 +30,15 @@ void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
 {
-    SnakeDx::scheduler.resources.Lock(2ms, 8, [&](SnakeDx::Resources& r) {
-        r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
-    });
+    auto [m, r] = SnakeDx::scheduler.resources.ToRef();
+    std::scoped_lock lock(m);
+    r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
 }
 
 void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&)
 {
-    SnakeDx::scheduler.resources.Lock([&](SnakeDx::Resources& r) {
-        r.ResetSwapChainPanel();
-    });
+    auto [m, r] = SnakeDx::scheduler.resources.ToRef();
+    std::scoped_lock lock(m);
+    r.ResetSwapChainPanel();
 }
 }

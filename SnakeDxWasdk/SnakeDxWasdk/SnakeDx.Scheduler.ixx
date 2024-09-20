@@ -20,7 +20,13 @@ public:
     {
     }
 
-    void Draw(ID3D11DeviceContext& context) { }
+    void Draw(ID3D11DeviceContext& context)
+    {
+        context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        context.VSSetShader(m_vertex.get(), 0, 0);
+        context.PSSetShader(m_pixel.get(), 0, 0);
+        context.DrawInstanced(3, 2, 0, 0);
+    }
 };
 
 export class Scheduler final : SnakeGame::Scheduler {
@@ -31,14 +37,17 @@ protected:
     {
         if (!resources->Ready())
             return;
-        resources.TryLock([&](SnakeDx::Resources& r) {
-            r.Draw();
 
-            static std::mt19937 g;
-            static std::uniform_int_distribution d { 0, 200 };
-            if (d(g) == 0)
-                std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
-        });
+        auto [m,r] = resources.ToRef();
+        std::unique_lock lock(m, std::try_to_lock);
+        if (lock) {
+            r.Draw(trianglePass);
+        }
+
+        static std::mt19937 g;
+        static std::uniform_int_distribution d { 0, 200 };
+        if (d(g) == 0)
+            std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
     }
 
 public:

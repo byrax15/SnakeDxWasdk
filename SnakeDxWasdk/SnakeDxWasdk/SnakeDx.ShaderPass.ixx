@@ -24,7 +24,6 @@ public:
 protected:
     ~ShaderPass() { }
 
-private:
     winrt::com_ptr<ID3D11VertexShader> m_vertex;
     winrt::com_ptr<ID3D11PixelShader> m_pixel;
 
