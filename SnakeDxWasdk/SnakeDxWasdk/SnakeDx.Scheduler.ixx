@@ -31,23 +31,25 @@ public:
 
 export class Scheduler final : SnakeGame::Scheduler {
 protected:
-    // void StepFixed() override { }
+    void StepFixed() override
+    {
+        auto& r = *resources;
+        static std::mt19937 g;
+        static std::uniform_int_distribution d { 0, 200 };
+        if (d(g) == 0)
+            std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
+    }
 
     void StepDelta(timestep const&) override
     {
         if (!resources->Ready())
             return;
 
-        auto [m,r] = resources.ToRef();
+        auto [m, r] = resources.ToRef();
         std::unique_lock lock(m, std::try_to_lock);
         if (lock) {
             r.Draw(trianglePass);
         }
-
-        static std::mt19937 g;
-        static std::uniform_int_distribution d { 0, 200 };
-        if (d(g) == 0)
-            std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
     }
 
 public:
