@@ -1,40 +1,40 @@
 static const float2 triangles[] =
 {
     { 0., .5 },
-    { .5, -5 },
+    { .5, -.5 },
     { -.5, -.5 }
 };
 
 static const float2 offsets[] =
 {
-    { -.6, 0 },
-    { .4, .1 }
+    { .6, .1 },
+    { -.4, -.2 },
+    { .1, 0 },
 };
 
-float4 main(uint i : SV_VertexID, uint j : SV_InstanceID) : SV_POSITION
+static const float4 colors[] =
 {
-    float4 pos = { 0, 0, 0, 1 };
-    switch (i % 3)
+    { 1, 0, 0, 1 },
+    { 0, 1, 0, 1 },
+    { 0, 0, 1, 1 },
+};
+
+struct VertexOut
+{
+    float4 color : COLOR;
+    float4 pos : SV_POSITION;
+};
+
+
+VertexOut main(
+    uint i : SV_VertexID,
+    uint j : SV_InstanceID
+)
+{
+    VertexOut vOut =
     {
-        case 0:
-            pos.xy = triangles[0];
-            break;
-        case 1:
-            pos.xy = triangles[1];
-            break;
-        case 2:
-            pos.xy = triangles[2];
-            break;
-    }
-    switch (j % 2)
-    {
-        case 0:
-            pos.xy += offsets[0];
-            break;
-        case 1:
-            pos.xy += offsets[1];
-            break;
-    }
-    
-    return pos;
+        colors[i % 3] * .5 + colors[j % 3] * .5,
+        float4(triangles[i % 3] + offsets[j % 3], 0, 1),
+    };
+    return vOut;
 }

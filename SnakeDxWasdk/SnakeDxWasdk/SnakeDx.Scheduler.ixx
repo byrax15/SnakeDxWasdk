@@ -25,7 +25,7 @@ public:
         context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         context.VSSetShader(m_vertex.get(), 0, 0);
         context.PSSetShader(m_pixel.get(), 0, 0);
-        context.DrawInstanced(3, 2, 0, 0);
+        context.DrawInstanced(3, 3, 0, 0);
     }
 };
 
