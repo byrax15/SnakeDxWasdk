@@ -60,4 +60,14 @@ void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectabl
         dl.remove(&frameTimeListener);
     };
 }
+
+void MainWindow::swapChainPanel_KeyDown(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e)
+{
+    switch (e.Key()) {
+    case winrt::Windows::System::VirtualKey::Escape:
+        SnakeDx::scheduler.message = SnakeDx::CoroutineScheduler::Message::Success;
+        Close();
+        break;
+    }
+}
 }

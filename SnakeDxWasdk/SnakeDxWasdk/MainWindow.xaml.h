@@ -11,6 +11,7 @@ struct MainWindow : MainWindowT<MainWindow> {
     void myButton_Click(IInspectable const& sender, Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void swapChainPanel_SizeChanged(IInspectable const& sender, winrt::Microsoft::UI::Xaml::SizeChangedEventArgs const& e);
     void swapChainPanel_Unloaded(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+    void swapChainPanel_KeyDown(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e);
 
     std::function<winrt::fire_and_forget(void)> frameTimeListener;
 };

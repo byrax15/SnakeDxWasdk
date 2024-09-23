@@ -12,6 +12,7 @@
     <SwapChainPanel x:Name="swapChainPanel"
                     SizeChanged="swapChainPanel_SizeChanged"
                     Unloaded="swapChainPanel_Unloaded"
+                    KeyDown="swapChainPanel_KeyDown"
                     >
         <TextBlock>Frame Time (s): <Run x:Name="frameTime"></Run></TextBlock>
         <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
