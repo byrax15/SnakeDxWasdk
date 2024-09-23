@@ -36,6 +36,7 @@ export class CoroutineScheduler final : public SnakeGame::GameScheduler {
 private:
     winrt::apartment_context thread;
     winrt::IAsyncAction loop;
+
     timestep last = duration_cast<timestep>(clock::now().time_since_epoch());
     timestep next = duration_cast<timestep>(clock::now().time_since_epoch());
 

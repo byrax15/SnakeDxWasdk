@@ -65,7 +65,7 @@ void MainWindow::swapChainPanel_KeyDown(winrt::Windows::Foundation::IInspectable
 {
     switch (e.Key()) {
     case winrt::Windows::System::VirtualKey::Escape:
-        SnakeDx::scheduler.message = SnakeDx::CoroutineScheduler::Message::Success;
+        // SnakeDx::scheduler.message = SnakeDx::CoroutineScheduler::Message::Success;
         Close();
         break;
     }

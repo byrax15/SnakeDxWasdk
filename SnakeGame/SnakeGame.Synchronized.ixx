@@ -8,7 +8,7 @@ namespace SnakeGame {
 
 export template <typename T>
 class Synchronized {
-    std::mutex m {};
+    std::recursive_mutex m {};
     T value;
 
 public:
@@ -25,7 +25,7 @@ public:
     auto& Value() { }
 
     struct Ref {
-        std::mutex& m;
+        std::recursive_mutex& m;
         T& value;
     };
 
