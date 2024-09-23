@@ -145,6 +145,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="SnakeDx.CoroutineScheduler.ixx" />
     <ClCompile Include="SnakeDx.ixx" />
     <ClCompile Include="SnakeDx.Resources.cpp" />
     <ClCompile Include="SnakeDx.Resources.ixx" />

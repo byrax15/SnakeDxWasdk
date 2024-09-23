@@ -5,6 +5,8 @@ export module SnakeDx:Scheduler;
 import std;
 using namespace std::literals;
 
+import :CoroutineScheduler;
+
 import SnakeGame;
 import :Resources;
 import :Token;
@@ -29,21 +31,22 @@ public:
     }
 };
 
-export class Scheduler final : SnakeGame::Scheduler {
+export class Scheduler final : public CoroutineScheduler {
 protected:
-    void StepFixed() override
+    winrt::fire_and_forget StepFixed() override
     {
         auto& r = *resources;
         static std::mt19937 g;
         static std::uniform_int_distribution d { 0, 200 };
         if (d(g) == 0)
             std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
+        co_return;
     }
 
-    void StepDelta(timestep const&) override
+    winrt::fire_and_forget StepDelta(timestep const&) override
     {
         if (!resources->Ready())
-            return;
+            co_return;
 
         auto [m, r] = resources.ToRef();
         std::unique_lock lock(m, std::try_to_lock);
