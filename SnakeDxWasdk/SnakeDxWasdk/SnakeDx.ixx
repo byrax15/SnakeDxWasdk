@@ -3,4 +3,4 @@ module;
 export module SnakeDx;
 
 export import :Resources;
-export import :Scheduler;
+export import :CoroutineScheduler;

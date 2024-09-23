@@ -21,13 +21,13 @@
     <ClCompile Include="SnakeDx.Token.ixx">
       <Filter>SnakeDx</Filter>
     </ClCompile>
-    <ClCompile Include="SnakeDx.Scheduler.ixx">
-      <Filter>SnakeDx</Filter>
-    </ClCompile>
     <ClCompile Include="SnakeDx.Resources.cpp">
       <Filter>SnakeDx</Filter>
     </ClCompile>
     <ClCompile Include="SnakeDx.ShaderPass.ixx">
+      <Filter>SnakeDx</Filter>
+    </ClCompile>
+    <ClCompile Include="SnakeDx.CoroutineScheduler.ixx">
       <Filter>SnakeDx</Filter>
     </ClCompile>
   </ItemGroup>

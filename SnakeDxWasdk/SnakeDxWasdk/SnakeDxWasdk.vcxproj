@@ -149,7 +149,6 @@
     <ClCompile Include="SnakeDx.ixx" />
     <ClCompile Include="SnakeDx.Resources.cpp" />
     <ClCompile Include="SnakeDx.Resources.ixx" />
-    <ClCompile Include="SnakeDx.Scheduler.ixx" />
     <ClCompile Include="SnakeDx.ShaderPass.ixx" />
     <ClCompile Include="SnakeDx.Token.ixx" />
   </ItemGroup>

@@ -3,7 +3,11 @@ module;
 export module SnakeDx:CoroutineScheduler;
 
 import std;
+import SnakeGame;
+
 import :Token;
+import :ShaderPass;
+import :Resources;
 
 namespace SnakeDx {
 namespace {
@@ -15,13 +19,33 @@ namespace winrt {
     using namespace ::winrt::Windows::Foundation;
 }
 
-export class CoroutineScheduler {
+class TrianglePass final : ShaderPass {
 public:
-    using clock = steady_clock;
-    using seconds = std::ratio<1>;
-    using timestep = duration<float, seconds>;
-    static constexpr std::uint64_t FREQUENCY { 50 };
-    static constexpr timestep PERIOD { 1. / FREQUENCY };
+    TrianglePass(ID3D11Device5& device)
+        : ShaderPass(device, L"Triangle.vs.cso", L"PassThru.ps.cso")
+    {
+    }
+
+    void Draw(ID3D11DeviceContext& context)
+    {
+        context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        context.VSSetShader(m_vertex.get(), 0, 0);
+        context.PSSetShader(m_pixel.get(), 0, 0);
+        context.DrawInstanced(3, 3, 0, 0);
+    }
+};
+
+
+export class CoroutineScheduler final : public SnakeGame::GameScheduler {
+private:
+    winrt::apartment_context thread;
+    winrt::IAsyncAction loop;
+    timestep last = duration_cast<timestep>(clock::now().time_since_epoch());
+    timestep next = duration_cast<timestep>(clock::now().time_since_epoch());
+
+public:
+    SnakeGame::Synchronized<Resources> resources { token };
+    TrianglePass trianglePass { resources->D3DDevice() };
 
     enum class Message {
         Continue,
@@ -30,10 +54,9 @@ public:
     } message
         = Message::Continue;
 
-protected:
-    CoroutineScheduler()
+    CoroutineScheduler(Token)
+        : loop(Run())
     {
-        loop = Start();
     }
 
     ~CoroutineScheduler()
@@ -41,16 +64,36 @@ protected:
         message = Message::Success;
     }
 
-    virtual winrt::fire_and_forget StepFixed() = 0;
-    virtual winrt::fire_and_forget StepDelta(timestep const& delta) = 0;
+protected:
+    void StepFixed() override
+    {
+        GameScheduler::StepFixed();
+
+        static std::mt19937 g;
+        static std::uniform_int_distribution d { 0, 200 };
+        if (d(g) == 0) {
+            auto [m, r] = resources.ToRef();
+            std::unique_lock lock(m);
+            std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
+        }
+    }
+
+    void StepDelta(timestep const& delta) override
+    {
+        GameScheduler::StepDelta(delta);
+
+        if (!resources->Ready())
+            return;
+
+        auto [m, r] = resources.ToRef();
+        std::unique_lock lock(m, std::try_to_lock);
+        if (lock) {
+            r.Draw(trianglePass);
+        }
+    }
 
 private:
-    winrt::apartment_context thread;
-    winrt::IAsyncAction loop;
-    timestep last = duration_cast<timestep>(clock::now().time_since_epoch());
-    timestep next = duration_cast<timestep>(clock::now().time_since_epoch());
-
-    winrt::IAsyncAction Start()
+    winrt::IAsyncAction Run()
     {
         co_await winrt::resume_background();
         thread = {};
@@ -66,9 +109,10 @@ private:
             StepDelta(now - last);
             last = now;
         }
-        if (message == Message::Error){
+        if (message == Message::Error) {
             throw std::exception("Event Loop crash");
         }
     }
-};
+
+} scheduler(token);
 }
