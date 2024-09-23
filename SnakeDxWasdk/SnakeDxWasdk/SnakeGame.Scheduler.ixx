@@ -22,7 +22,7 @@ public:
 protected:
     ~IScheduler() = default;
     virtual void StepFixed() { }
-    virtual void StepDelta(timestep const& delta) { }
+    virtual void StepDelta([[maybe_unused]] timestep const& delta) { }
 
 private:
 };

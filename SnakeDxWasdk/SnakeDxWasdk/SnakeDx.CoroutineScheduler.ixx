@@ -3,6 +3,7 @@ module;
 export module SnakeDx:CoroutineScheduler;
 
 import std;
+
 import SnakeGame;
 
 import :Token;
@@ -13,6 +14,7 @@ namespace SnakeDx {
 namespace {
     using namespace std::chrono;
     using namespace std::literals;
+    using namespace std::chrono_literals;
 }
 namespace winrt {
     using namespace ::winrt;
@@ -34,7 +36,6 @@ public:
         context.DrawInstanced(3, 3, 0, 0);
     }
 };
-
 
 export class CoroutineScheduler final : public SnakeGame::GameScheduler {
 private:
@@ -73,7 +74,7 @@ protected:
         static std::uniform_int_distribution d { 0, 200 };
         if (d(g) == 0) {
             auto [m, r] = resources.ToRef();
-            std::unique_lock lock(m);
+            // std::unique_lock lock(m);
             std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
         }
     }
@@ -108,6 +109,7 @@ private:
 
             StepDelta(now - last);
             last = now;
+            co_await winrt::resume_after(1ms);
         }
         if (message == Message::Error) {
             throw std::exception("Event Loop crash");
