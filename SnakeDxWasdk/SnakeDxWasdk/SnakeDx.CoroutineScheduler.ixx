@@ -11,11 +11,6 @@ import :ShaderPass;
 import :Resources;
 
 namespace SnakeDx {
-namespace {
-    using namespace std::chrono;
-    using namespace std::literals;
-    using namespace std::chrono_literals;
-}
 namespace winrt {
     using namespace ::winrt;
     using namespace ::winrt::Windows::Foundation;
@@ -45,6 +40,8 @@ private:
     timestep next = duration_cast<timestep>(clock::now().time_since_epoch());
 
 public:
+    SnakeGame::Synchronized<std::list<std::function<winrt::fire_and_forget(void)>*>> deltaListeners {};
+    timestep frameTime {};
     SnakeGame::Synchronized<Resources> resources { token };
     TrianglePass trianglePass { resources->D3DDevice() };
 
@@ -66,55 +63,12 @@ public:
     }
 
 protected:
-    void StepFixed() override
-    {
-        GameScheduler::StepFixed();
+    void StepFixed() override;
 
-        static std::mt19937 g;
-        static std::uniform_int_distribution d { 0, 200 };
-        if (d(g) == 0) {
-            auto [m, r] = resources.ToRef();
-            // std::unique_lock lock(m);
-            std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
-        }
-    }
-
-    void StepDelta(timestep const& delta) override
-    {
-        GameScheduler::StepDelta(delta);
-
-        if (!resources->Ready())
-            return;
-
-        auto [m, r] = resources.ToRef();
-        std::unique_lock lock(m, std::try_to_lock);
-        if (lock) {
-            r.Draw(trianglePass);
-        }
-    }
+    void StepDelta(timestep const& delta) override;
 
 private:
-    winrt::IAsyncAction Run()
-    {
-        co_await winrt::resume_background();
-        thread = {};
-
-        while (message == Message::Continue) {
-            const auto now
-                = duration_cast<timestep>(clock::now().time_since_epoch());
-            if (now >= next) {
-                next += PERIOD;
-                StepFixed();
-            }
-
-            StepDelta(now - last);
-            last = now;
-            co_await winrt::resume_after(1ms);
-        }
-        if (message == Message::Error) {
-            throw std::exception("Event Loop crash");
-        }
-    }
+    winrt::IAsyncAction Run();
 
 } scheduler(token);
 }

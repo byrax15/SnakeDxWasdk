@@ -30,6 +30,7 @@
     <ClCompile Include="SnakeDx.CoroutineScheduler.ixx">
       <Filter>SnakeDx</Filter>
     </ClCompile>
+    <ClCompile Include="SnakeDx.CoroutineScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

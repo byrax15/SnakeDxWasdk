@@ -2,17 +2,17 @@
 
 #include "MainWindow.g.h"
 
+import std;
+
 namespace winrt::SnakeDxWasdk::implementation {
 struct MainWindow : MainWindowT<MainWindow> {
-    MainWindow()
-    {
-        // Xaml objects should not call InitializeComponent during construction.
-        // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
-    }
+    MainWindow();
 
     void myButton_Click(IInspectable const& sender, Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void swapChainPanel_SizeChanged(IInspectable const& sender, winrt::Microsoft::UI::Xaml::SizeChangedEventArgs const& e);
     void swapChainPanel_Unloaded(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+
+    std::function<winrt::fire_and_forget(void)> frameTimeListener;
 };
 }
 
