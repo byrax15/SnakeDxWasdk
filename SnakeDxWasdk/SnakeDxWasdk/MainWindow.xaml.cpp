@@ -19,7 +19,7 @@ namespace winrt::SnakeDxWasdk::implementation {
 MainWindow::MainWindow()
     : frameTimeListener([&, uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
         co_await uiThread;
-        frameTime().Text(winrt::to_hstring(SnakeDx::scheduler.frameTime.count()));
+        frameTime().Text(std::format(L"{:>.4}", SnakeDx::scheduler.frameTime.count()));
     })
 {
     auto [m, dl] = SnakeDx::scheduler.deltaListeners.ToRef();
