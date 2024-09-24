@@ -6,6 +6,9 @@ import std;
 import <DirectXMath.h>;
 
 namespace SnakeGame {
+namespace {
+    using namespace DirectX;
+}
 
 export class GameScheduler : public IScheduler {
 protected:
@@ -16,12 +19,23 @@ protected:
         auto iter = std::views::zip(positions, velocities);
         std::for_each(std::execution::par, iter.begin(), iter.end(), [](auto&& i) {
             auto&& [p, v] = i;
-            DirectX::XMStoreFloat4(&p, DirectX::XMVectorAdd(XMLoadFloat4(&p), XMLoadFloat4(&v)));
+            XMStoreFloat4(
+                &p,
+                XMVectorMultiplyAdd(XMVectorReplicate(PERIOD.count()), XMLoadFloat4(&v), XMLoadFloat4(&p)));
+            if (AABB_MIN.x > p.x || p.x < AABB_MAX.x)
+                p.x *= -1;
+            if (AABB_MIN.y > p.y || p.y < AABB_MAX.y)
+                p.y *= -1;
+            if (AABB_MIN.z > p.z || p.z < AABB_MAX.z)
+                p.z *= -1;
+            p.w = 1;
         });
     }
 
     using float4 = DirectX::XMFLOAT4;
-    std::vector<float4> positions { Random(3, { -1, -1, -1, 1 }, { 1, 1, 1, 1 }) };
+    static constexpr float4 AABB_MIN { -1, -1, -1, 1 };
+    static constexpr float4 AABB_MAX { 1, 1, 1, 1 };
+    std::vector<float4> positions { Random(3, AABB_MIN, AABB_MAX) };
     std::vector<float4> velocities { Random(3, { -1, -1, -1, 1 }, { 1, 1, 1, 1 }) };
 
 private:

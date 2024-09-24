@@ -20,6 +20,7 @@ class TrianglePass final : ShaderPass {
 public:
     TrianglePass(ID3D11Device5& device)
         : ShaderPass(device, L"Triangle.vs.cso", L"PassThru.ps.cso")
+        
     {
     }
 

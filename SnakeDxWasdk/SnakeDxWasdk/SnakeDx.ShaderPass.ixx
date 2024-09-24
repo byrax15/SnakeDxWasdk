@@ -26,6 +26,7 @@ protected:
 
     winrt::com_ptr<ID3D11VertexShader> m_vertex;
     winrt::com_ptr<ID3D11PixelShader> m_pixel;
+    winrt::com_ptr<ID3D11InputLayout> m_layout;
 
 private:
     static std::vector<char> ReadBytes(std::wstring_view fName)
