@@ -1,1 +1,5 @@
-{ "dependencies": [] }
+{
+  "dependencies": [
+    "ms-gsl"
+  ]
+}

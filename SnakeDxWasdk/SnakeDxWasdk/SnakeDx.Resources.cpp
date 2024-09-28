@@ -19,7 +19,6 @@ SnakeDx::Resources::Resources(SnakeDx::Token)
     // description.  All applications are assumed to support 9.1 unless otherwise stated.
     D3D_FEATURE_LEVEL featureLevels[] {
         D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
     };
 
     // Create the Direct3D 11 API device object and a corresponding context.

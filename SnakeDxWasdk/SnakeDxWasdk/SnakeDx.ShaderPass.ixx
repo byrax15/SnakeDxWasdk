@@ -12,13 +12,22 @@ public:
     ShaderPass& operator=(ShaderPass const&) = delete;
 
 public:
-    ShaderPass(ID3D11Device& device, std::wstring_view vertex_fname, std::wstring_view pixel_fname)
+    ShaderPass(ID3D11Device& device,
+        std::wstring_view vertex_fname, std::wstring_view pixel_fname,
+        std::initializer_list<D3D11_INPUT_ELEMENT_DESC> inputs = {})
     {
         const auto vbytes = ReadBytes(vertex_fname);
-        device.CreateVertexShader(vbytes.data(), vbytes.size(), nullptr, m_vertex.put());
+        winrt::check_hresult(
+            device.CreateVertexShader(vbytes.data(), vbytes.size(), nullptr, m_vertex.put()));
 
         const auto pbytes = ReadBytes(pixel_fname);
-        device.CreatePixelShader(pbytes.data(), pbytes.size(), nullptr, m_pixel.put());
+        winrt::check_hresult(
+            device.CreatePixelShader(pbytes.data(), pbytes.size(), nullptr, m_pixel.put()));
+
+        if (inputs.size() != 0) {
+            winrt::check_hresult(
+                device.CreateInputLayout(std::data(inputs), inputs.size(), vbytes.data(), vbytes.size(), m_layout.put()));
+        }
     }
 
 protected:

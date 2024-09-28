@@ -19,17 +19,25 @@ namespace winrt {
 class TrianglePass final : ShaderPass {
 public:
     TrianglePass(ID3D11Device5& device)
-        : ShaderPass(device, L"Triangle.vs.cso", L"PassThru.ps.cso")
-        
+        : ShaderPass(device, L"Triangle.vs.cso", L"PassThru.ps.cso", { D3D11_INPUT_ELEMENT_DESC {
+                                                                         .SemanticName = "InstancePosition",
+                                                                         .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                                                                         .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+                                                                         .InstanceDataStepRate = 1,
+                                                                     } })
     {
     }
 
-    void Draw(ID3D11DeviceContext& context)
+    void Draw(ID3D11DeviceContext& context, ID3D11Buffer* instance_buf, UINT size_instance)
     {
         context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        context.IASetInputLayout(m_layout.get());
         context.VSSetShader(m_vertex.get(), 0, 0);
         context.PSSetShader(m_pixel.get(), 0, 0);
-        context.DrawInstanced(3, 3, 0, 0);
+        constexpr UINT strides = gsl::narrow<UINT>(sizeof SnakeGame::GameScheduler::float4);
+        constexpr UINT offsets = 0;
+        context.IASetVertexBuffers(0, 1, &instance_buf, &strides, &offsets);
+        context.DrawInstanced(3, size_instance, 0, 0);
     }
 };
 
@@ -42,11 +50,16 @@ private:
     timestep next = duration_cast<timestep>(clock::now().time_since_epoch());
 
 public:
+    // Scheduling
     SnakeGame::Synchronized<std::list<std::function<winrt::fire_and_forget(void)>*>> deltaListeners {};
     timestep frameTime {};
-    SnakeGame::Synchronized<Resources> resources { token };
-    TrianglePass trianglePass { resources->D3DDevice() };
 
+    // DirectX draw resources
+    SnakeGame::Synchronized<Resources> resources;
+    TrianglePass trianglePass;
+    winrt::com_ptr<ID3D11Buffer> instances;
+
+public:
     enum class Message {
         Continue,
         Success,
@@ -54,15 +67,9 @@ public:
     } message
         = Message::Continue;
 
-    CoroutineScheduler(Token)
-        : loop(Run())
-    {
-    }
+    CoroutineScheduler(Token);
 
-    ~CoroutineScheduler()
-    {
-        message = Message::Success;
-    }
+    ~CoroutineScheduler();
 
 protected:
     void StepFixed() override;
@@ -71,6 +78,5 @@ protected:
 
 private:
     winrt::IAsyncAction Run();
-
 } scheduler(token);
 }

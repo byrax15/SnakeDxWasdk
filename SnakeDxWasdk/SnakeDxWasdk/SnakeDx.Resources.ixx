@@ -40,6 +40,7 @@ public:
     bool Ready() const { return m_swapChain && m_renderTargetView; }
 
     auto& D3DDevice() { return *m_d3dDevice; }
+    auto& D3DContext() { return *m_d3dContext; }
 
     void SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel panel, winrt::Windows::Foundation::Size newSize);
     void ResetSwapChainPanel()
@@ -48,15 +49,16 @@ public:
         m_swapChain.put();
     }
 
-    void Draw(auto&&... passes)
+    auto& DrawStart()
     {
         std::array views { m_renderTargetView.get() };
         m_d3dContext->OMSetRenderTargets(1, views.data(), nullptr);
-
         m_d3dContext->ClearRenderTargetView(m_renderTargetView.get(), m_clearColor.data());
+        return *m_d3dContext;
+    }
 
-        (passes.Draw(*m_d3dContext), ...);
-
+    void DrawEnd()
+    {
         winrt::check_hresult(m_swapChain->Present(1, {}));
     }
 };

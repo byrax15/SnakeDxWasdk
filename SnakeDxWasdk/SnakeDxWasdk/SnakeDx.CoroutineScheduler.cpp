@@ -11,9 +11,54 @@ namespace {
     using namespace std::chrono_literals;
 }
 
+static UINT byte_size(std::ranges::sized_range auto&& sized)
+{
+    using value_type = std::remove_cvref_t<decltype(sized)>::value_type;
+    return gsl::narrow<UINT>(std::ranges::size(sized) * sizeof(value_type));
+}
+
+static UINT byte_size(ID3D11Buffer& buffer)
+{
+    D3D11_BUFFER_DESC desc;
+    buffer.GetDesc(&desc);
+    return desc.ByteWidth;
+}
+
+static void buffer_realloc(ID3D11Device& device, winrt::com_ptr<ID3D11Buffer>& buffer, UINT byte_size)
+{
+    D3D11_BUFFER_DESC const INSTANCE_DESC {
+        .ByteWidth = byte_size,
+        .Usage = D3D11_USAGE_DYNAMIC,
+        .BindFlags = D3D11_BIND_VERTEX_BUFFER,
+        .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
+    };
+    winrt::check_hresult(device.CreateBuffer(&INSTANCE_DESC, nullptr, buffer.put()));
+}
+
+CoroutineScheduler::CoroutineScheduler(Token)
+    : resources(token)
+    , trianglePass(resources->D3DDevice())
+{
+    buffer_realloc(resources->D3DDevice(), instances, byte_size(positions));
+    loop = Run();
+}
+
+CoroutineScheduler::~CoroutineScheduler()
+{
+    message = Message::Success;
+}
+
 void CoroutineScheduler::StepFixed()
 {
     GameScheduler::StepFixed();
+    if (const auto psize = byte_size(positions); psize > byte_size(*instances)) {
+        buffer_realloc(resources->D3DDevice(), instances, psize);
+    }
+    auto& context = resources->D3DContext();
+    D3D11_MAPPED_SUBRESOURCE mapped;
+    context.Map(instances.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
+    std::ranges::copy(positions, reinterpret_cast<float4*>(mapped.pData));
+    context.Unmap(instances.get(), {});
 
     static std::mt19937 g;
     static std::uniform_int_distribution d { 0, 200 };
@@ -32,7 +77,9 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
         auto [m, r] = resources.ToRef();
         std::unique_lock lock(m, std::try_to_lock);
         if (lock) {
-            r.Draw(trianglePass);
+            auto& context = r.DrawStart();
+            trianglePass.Draw(context, instances.get(), positions.size());
+            r.DrawEnd();
             frameTime = delta;
         }
     }
