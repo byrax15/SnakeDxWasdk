@@ -78,7 +78,7 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
         std::unique_lock lock(m, std::try_to_lock);
         if (lock) {
             auto& context = r.DrawStart();
-            trianglePass.Draw(context, instances.get(), positions.size());
+            trianglePass.Draw(context, instances.get(), gsl::narrow<UINT>(positions.size()));
             r.DrawEnd();
             frameTime = delta;
         }
@@ -112,7 +112,7 @@ winrt::IAsyncAction CoroutineScheduler::Run()
         last = now;
 
         // TODO : Remove delay
-        co_await winrt::resume_after(1ms);
+        co_await winrt::resume_after(1us);
     }
     if (message == Message::Error) {
         throw std::exception("Event Loop crash");

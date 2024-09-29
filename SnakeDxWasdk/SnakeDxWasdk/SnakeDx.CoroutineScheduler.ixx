@@ -19,12 +19,16 @@ namespace winrt {
 class TrianglePass final : ShaderPass {
 public:
     TrianglePass(ID3D11Device5& device)
-        : ShaderPass(device, L"Triangle.vs.cso", L"PassThru.ps.cso", { D3D11_INPUT_ELEMENT_DESC {
-                                                                         .SemanticName = "InstancePosition",
-                                                                         .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                                                                         .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-                                                                         .InstanceDataStepRate = 1,
-                                                                     } })
+        : ShaderPass(
+            device,
+            L"Triangle.vs.cso",
+            L"PassThru.ps.cso",
+            { D3D11_INPUT_ELEMENT_DESC {
+                .SemanticName = "InstancePosition",
+                .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+                .InstanceDataStepRate = 1,
+            } })
     {
     }
 

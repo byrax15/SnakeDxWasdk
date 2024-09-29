@@ -20,17 +20,9 @@ export class Resources {
     winrt::com_ptr<ID3D11RenderTargetView> m_renderTargetView;
 
 public:
+    // Settings
+    UINT swapInterval = 0;
     std::array<float, 4> m_clearColor { .2f, .1f, .4f, 1.f };
-
-    friend void swap(Resources& l, Resources& r) noexcept
-    {
-        std::swap(l.m_featureLevel, r.m_featureLevel);
-        std::swap(l.m_d3dDevice, r.m_d3dDevice);
-        std::swap(l.m_d3dContext, r.m_d3dContext);
-        std::swap(l.m_dxgiDevice, r.m_dxgiDevice);
-        std::swap(l.m_swapChain, r.m_swapChain);
-        std::swap(l.m_renderTargetView, r.m_renderTargetView);
-    }
 
     Resources(Resources const&) = delete;
     Resources& operator=(Resources const&) = delete;
@@ -59,7 +51,7 @@ public:
 
     void DrawEnd()
     {
-        winrt::check_hresult(m_swapChain->Present(1, {}));
+        winrt::check_hresult(m_swapChain->Present(swapInterval, {}));
     }
 };
 }

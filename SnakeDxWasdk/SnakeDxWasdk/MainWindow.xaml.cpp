@@ -64,8 +64,13 @@ void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectabl
 void MainWindow::swapChainPanel_KeyDown(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e)
 {
     switch (e.Key()) {
+    case winrt::Windows::System::VirtualKey::Number0:
+        SnakeDx::scheduler.resources->swapInterval = 0;
+        break;
+    case winrt::Windows::System::VirtualKey::Number1:
+        SnakeDx::scheduler.resources->swapInterval = 1;
+        break;
     case winrt::Windows::System::VirtualKey::Escape:
-        // SnakeDx::scheduler.message = SnakeDx::CoroutineScheduler::Message::Success;
         Close();
         break;
     }

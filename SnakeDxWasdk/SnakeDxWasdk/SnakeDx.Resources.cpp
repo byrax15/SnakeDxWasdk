@@ -86,7 +86,6 @@ void SnakeDx::Resources::SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls:
         winrt::check_hresult(
             panel.as<IUnknown>()->QueryInterface(nativePanel.put()));
         nativePanel->SetSwapChain(m_swapChain.get());
-        winrt::check_hresult(m_dxgiDevice->SetMaximumFrameLatency(1));
     }
 
     winrt::com_ptr<ID3D11Texture2D> backBuffer;
