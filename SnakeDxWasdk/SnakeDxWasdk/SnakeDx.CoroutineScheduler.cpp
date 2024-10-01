@@ -9,6 +9,7 @@ namespace {
     using namespace std::chrono;
     using namespace std::literals;
     using namespace std::chrono_literals;
+    using namespace DirectX;
 }
 
 static UINT byte_size(std::ranges::sized_range auto&& sized)
@@ -24,15 +25,28 @@ static UINT byte_size(ID3D11Buffer& buffer)
     return desc.ByteWidth;
 }
 
-static void buffer_realloc(ID3D11Device& device, winrt::com_ptr<ID3D11Buffer>& buffer, UINT byte_size)
+static void buffer_realloc(ID3D11Device& device, winrt::com_ptr<ID3D11Buffer>& buffer, UINT byte_size, decltype(D3D11_BUFFER_DESC::BindFlags) bindFlags = D3D11_BIND_VERTEX_BUFFER)
 {
     D3D11_BUFFER_DESC const INSTANCE_DESC {
         .ByteWidth = byte_size,
         .Usage = D3D11_USAGE_DYNAMIC,
-        .BindFlags = D3D11_BIND_VERTEX_BUFFER,
+        .BindFlags = bindFlags,
         .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
     };
     winrt::check_hresult(device.CreateBuffer(&INSTANCE_DESC, nullptr, buffer.put()));
+}
+
+void TrianglePass::Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance)
+{
+    context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    context.IASetInputLayout(m_layout.get());
+    context.VSSetShader(m_vertex.get(), 0, 0);
+    context.PSSetShader(m_pixel.get(), 0, 0);
+    constexpr UINT strides = gsl::narrow<UINT>(sizeof SnakeGame::GameScheduler::float4);
+    constexpr UINT offsets = 0;
+    context.IASetVertexBuffers(0, 1, &instance_buf, &strides, &offsets);
+    context.VSSetConstantBuffers(0, 1, &camera_buf);
+    context.DrawInstanced(3, size_instance, 0, 0);
 }
 
 CoroutineScheduler::CoroutineScheduler(Token)
@@ -40,6 +54,7 @@ CoroutineScheduler::CoroutineScheduler(Token)
     , trianglePass(resources->D3DDevice())
 {
     buffer_realloc(resources->D3DDevice(), instances, byte_size(positions));
+    buffer_realloc(resources->D3DDevice(), camera, sizeof(Camera), D3D11_BIND_CONSTANT_BUFFER);
     loop = Run();
 }
 
@@ -54,6 +69,7 @@ void CoroutineScheduler::StepFixed()
     if (const auto psize = byte_size(positions); psize > byte_size(*instances)) {
         buffer_realloc(resources->D3DDevice(), instances, psize);
     }
+
     auto& context = resources->D3DContext();
     D3D11_MAPPED_SUBRESOURCE mapped;
     context.Map(instances.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
@@ -78,7 +94,16 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
         std::unique_lock lock(m, std::try_to_lock);
         if (lock) {
             auto& context = r.DrawStart();
-            trianglePass.Draw(context, instances.get(), gsl::narrow<UINT>(positions.size()));
+
+            D3D11_MAPPED_SUBRESOURCE mapped;
+            context.Map(camera.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
+            auto cam = reinterpret_cast<Camera*>(mapped.pData);
+            XMStoreFloat4x4(&cam->v, XMMatrixTranspose(XMMatrixLookAtLH(XMVectorSet(0, 0, -10, 1), XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0))));
+            XMStoreFloat4x4(&cam->p, XMMatrixTranspose(XMMatrixPerspectiveFovLH(XMConvertToRadians(60.f), resources->ViewportAspect(), 1e-4f, 1e4f)));
+            std::ranges::copy(std::array<float, 4> { 1, 0, 0, 1 }, &cam->color.x);
+            context.Unmap(camera.get(), {});
+
+            trianglePass.Draw(context, camera.get(), instances.get(), gsl::narrow<UINT>(positions.size()));
             r.DrawEnd();
             frameTime = delta;
         }

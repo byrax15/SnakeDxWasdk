@@ -32,17 +32,7 @@ public:
     {
     }
 
-    void Draw(ID3D11DeviceContext& context, ID3D11Buffer* instance_buf, UINT size_instance)
-    {
-        context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        context.IASetInputLayout(m_layout.get());
-        context.VSSetShader(m_vertex.get(), 0, 0);
-        context.PSSetShader(m_pixel.get(), 0, 0);
-        constexpr UINT strides = gsl::narrow<UINT>(sizeof SnakeGame::GameScheduler::float4);
-        constexpr UINT offsets = 0;
-        context.IASetVertexBuffers(0, 1, &instance_buf, &strides, &offsets);
-        context.DrawInstanced(3, size_instance, 0, 0);
-    }
+    void Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance);
 };
 
 export class CoroutineScheduler final : public SnakeGame::GameScheduler {
@@ -62,6 +52,13 @@ public:
     SnakeGame::Synchronized<Resources> resources;
     TrianglePass trianglePass;
     winrt::com_ptr<ID3D11Buffer> instances;
+
+    struct Camera {
+        DirectX::XMFLOAT4 color;
+        DirectX::XMFLOAT4X4 v;
+        DirectX::XMFLOAT4X4 p;
+    };
+    winrt::com_ptr<ID3D11Buffer> camera;
 
 public:
     enum class Message {

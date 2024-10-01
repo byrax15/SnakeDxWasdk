@@ -34,6 +34,24 @@ public:
     auto& D3DDevice() { return *m_d3dDevice; }
     auto& D3DContext() { return *m_d3dContext; }
 
+    D3D11_VIEWPORT Viewport()
+    {
+        UINT count;
+#ifdef _DEBUG
+        m_d3dContext->RSGetViewports(&count, nullptr);
+        assert(count == 1);
+#endif
+        D3D11_VIEWPORT vp;
+        m_d3dContext->RSGetViewports(&count, &vp);
+        return vp;
+    }
+
+    float ViewportAspect()
+    {
+        const auto vp = Viewport();
+        return gsl::narrow<float>(vp.Width) / gsl::narrow<float>(vp.Height);
+    }
+
     void SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel panel, winrt::Windows::Foundation::Size newSize);
     void ResetSwapChainPanel()
     {

@@ -31,3 +31,4 @@
 #include <wil/cppwinrt_helpers.h>
 
 #include <gsl/gsl>
+#include <DirectXMath.h>
