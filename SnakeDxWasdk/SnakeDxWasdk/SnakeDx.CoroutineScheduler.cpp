@@ -98,9 +98,18 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
             D3D11_MAPPED_SUBRESOURCE mapped;
             context.Map(camera.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
             auto cam = reinterpret_cast<Camera*>(mapped.pData);
-            XMStoreFloat4x4(&cam->v, XMMatrixTranspose(XMMatrixLookAtLH(XMVectorSet(0, 0, -10, 1), XMVectorSet(0, 0, 0, 0), XMVectorSet(0, 1, 0, 0))));
-            XMStoreFloat4x4(&cam->p, XMMatrixTranspose(XMMatrixPerspectiveFovLH(XMConvertToRadians(60.f), resources->ViewportAspect(), 1e-4f, 1e4f)));
-            std::ranges::copy(std::array<float, 4> { 1, 0, 0, 1 }, &cam->color.x);
+            XMStoreFloat4x4(
+                &cam->vp,
+                XMMatrixMultiplyTranspose(
+                    XMMatrixLookAtLH(
+                        XMVectorSet(0, 0, -10, 1),
+                        XMVectorSet(0, 0, 0, 0),
+                        XMVectorSet(0, 1, 0, 0)),
+                    XMMatrixPerspectiveFovLH(
+                        XMConvertToRadians(60.f),
+                        resources->ViewportAspect(),
+                        1e-4f,
+                        1e4f)));
             context.Unmap(camera.get(), {});
 
             trianglePass.Draw(context, camera.get(), instances.get(), gsl::narrow<UINT>(positions.size()));

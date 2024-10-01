@@ -54,9 +54,7 @@ public:
     winrt::com_ptr<ID3D11Buffer> instances;
 
     struct Camera {
-        DirectX::XMFLOAT4 color;
-        DirectX::XMFLOAT4X4 v;
-        DirectX::XMFLOAT4X4 p;
+        DirectX::XMFLOAT4X4 vp;
     };
     winrt::com_ptr<ID3D11Buffer> camera;
 

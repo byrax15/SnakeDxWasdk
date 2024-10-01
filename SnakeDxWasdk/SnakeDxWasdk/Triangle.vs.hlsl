@@ -20,9 +20,7 @@ struct VertexOut
 
 cbuffer Camera : register(b0)
 {
-    float4 color;
-    float4x4 v;
-    float4x4 p;
+    float4x4 vp;
 };
 
 
@@ -34,8 +32,8 @@ VertexOut main(
 {
     VertexOut vOut =
     {
-        color,
-        mul(float4(triangles[i % 3] + i_position, 0, 1), mul(v, p)),
+        float4(1,0,0,1),
+        mul(float4(triangles[i % 3] + i_position, 0, 1), vp),
     };
     return vOut;
 }
