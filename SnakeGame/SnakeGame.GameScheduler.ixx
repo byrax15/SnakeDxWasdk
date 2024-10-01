@@ -19,30 +19,43 @@ protected:
 
     void StepFixed()
     {
-        // auto iter = std::views::zip(positions, velocities);
-        // std::for_each(std::execution::par, iter.begin(), iter.end(), [](auto&& i) {
-        //     auto&& [p, v] = i;
-        //     XMStoreFloat4(&p, XMVectorMultiplyAdd(XMVectorReplicate(PERIOD.count()), XMLoadFloat4(&v), XMLoadFloat4(&p)));
-        //     if (AABB_MIN.x > p.x || p.x > AABB_MAX.x)
-        //         p.x *= -1;
-        //     if (AABB_MIN.y > p.y || p.y > AABB_MAX.y)
-        //         p.y *= -1;
-        //     p.z = 1;
-        //     p.w = 1;
-        // });
+        static std::mt19937 g;
+        static std::uniform_int_distribution d(0, 200);
+        switch (d(g)) {
+        case 0:
+        case 1:
+            std::ranges::copy(Random(1, AABB_MIN, AABB_MAX), std::back_inserter(positions));
+            std::ranges::copy(Random(1, { 0, 0, 0, 1 }, { 1, 1, 1, 1 }), std::back_inserter(colors));
+            std::ranges::copy(Random(1, { -1, -1, 0, 0 }, { 1, 1, 0, 0 }), std::back_inserter(velocities));
+            break;
+        case 200:
+            std::invoke([&] {
+                const auto erased = std::uniform_int_distribution<size_t>(0, positions.size() - 1)(g);
+                positions.erase(positions.begin() + erased);
+                colors.erase(colors.begin() + erased);
+                velocities.erase(velocities.begin() + erased);
+            });
+            break;
+        }
+
+        auto iter = std::views::zip(positions, velocities);
+        std::for_each(std::execution::par, iter.begin(), iter.end(), [](auto&& i) {
+            auto&& [p, v] = i;
+            XMStoreFloat4(&p, XMVectorMultiplyAdd(XMVectorReplicate(PERIOD.count()), XMLoadFloat4(&v), XMLoadFloat4(&p)));
+            if (AABB_MIN.x > p.x || p.x > AABB_MAX.x)
+                p.x *= -1;
+            if (AABB_MIN.y > p.y || p.y > AABB_MAX.y)
+                p.y *= -1;
+            p.z = 1;
+            p.w = 1;
+        });
     }
 
     static constexpr float4 AABB_MIN { -1, -1, -1, 1 };
     static constexpr float4 AABB_MAX { 1, 1, 1, 1 };
-    // std::vector<float4> positions { Random(3, AABB_MIN, AABB_MAX) };
-    // std::vector<float4> velocities { Random(3, { -1, -1, 0, 1 }, { 1, 1, 0, 1 }) };
-    std::vector<float4> positions {
-        { 0, 0, 0, 1 },
-        { 1, 0, 0, 1 },
-        { -1, 0, 0, 1 },
-        { 0, 1, 0, 1 },
-        { 0, -1, 0, 1 },
-    };
+    std::vector<float4> positions { Random(3, AABB_MIN, AABB_MAX) };
+    std::vector<float4> colors { Random(3, { 0, 0, 0, 1 }, { 1, 1, 1, 1 }) };
+    std::vector<float4> velocities { Random(3, { -1, -1, 0, 0 }, { 1, 1, 0, 0 }) };
 
 private:
     static std::vector<float4> Random(size_t count, float4 lower, float4 upper)

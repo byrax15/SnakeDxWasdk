@@ -18,7 +18,7 @@ struct VertexOut
     float4 pos : SV_POSITION;
 };
 
-cbuffer Camera : register(b0)
+cbuffer Camera
 {
     float4x4 vp;
 };
@@ -26,13 +26,14 @@ cbuffer Camera : register(b0)
 
 VertexOut main(
     float4 i_position : InstancePosition,
+    float4 i_color : InstanceColor,
     uint i : SV_VertexID,
     uint j : SV_InstanceID
 )
 {
     VertexOut vOut =
     {
-        float4(1,0,0,1),
+        i_color,
         mul(float4(triangles[i % 3] + i_position, 0, 1), vp),
     };
     return vOut;
