@@ -3,7 +3,6 @@ static const float2 triangles[] =
     { -.5, .5 },
     { .5, -.5 },
     { -.5, -.5 },
-    
     { -.5, .5 },
     { .5, .5 },
     { .5, -.5 },
@@ -19,8 +18,14 @@ static const float4 colors[] =
 
 struct VertexOut
 {
-    float4 color : COLOR;
+    float4 color : COLOR0;
     float4 pos : SV_POSITION;
+};
+
+struct VertexIn
+{
+    int4 i_position : InstancePosition;
+    float4 i_color : InstanceColor;
 };
 
 cbuffer Camera
@@ -28,18 +33,16 @@ cbuffer Camera
     float4x4 vp;
 };
 
-
 VertexOut main(
-    float4 i_position : InstancePosition,
-    float4 i_color : InstanceColor,
+    VertexIn vIn,
     uint i : SV_VertexID,
     uint j : SV_InstanceID
 )
 {
     VertexOut vOut =
     {
-        i_color,
-        mul(float4(triangles[i % 6] + i_position, 0, 1), vp),
+        vIn.i_color,
+        mul(float4(triangles[i % 6].xy + vIn.i_position.xy, 0, 1), vp),
     };
     return vOut;
 }

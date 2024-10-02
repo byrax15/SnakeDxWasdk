@@ -1,12 +1,12 @@
-struct VertexIn
+struct VertexOut
 {
-    float4 color : COLOR;
+    float4 color : COLOR0;
 };
 
 
 float4 main(
-    VertexIn vIn
+    VertexOut vOut
 ) : SV_TARGET
 {
-    return vIn.color;
+    return vOut.color;
 }

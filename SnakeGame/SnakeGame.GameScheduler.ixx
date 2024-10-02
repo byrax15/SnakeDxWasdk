@@ -10,65 +10,54 @@ namespace {
     using namespace DirectX;
 }
 
+export struct GridSquare {
+    XMINT4 position;
+    XMFLOAT4 color;
+};
+
+export template <typename Vector>
+std::vector<Vector> Random(size_t count, Vector lower, Vector upper)
+{
+    using TComponent = decltype(Vector::x);
+    constexpr auto NComponent = sizeof(Vector) / sizeof(TComponent);
+    using Distribution = std::conditional_t<std::is_integral_v<TComponent>,
+        std::uniform_int_distribution<TComponent>,
+        std::uniform_real_distribution<TComponent>>;
+
+    static std::random_device g;
+    std::array<Distribution, NComponent> distribs;
+    for (size_t i = 0; i < NComponent; ++i) {
+        distribs[i] = Distribution { (&lower.x)[i], (&upper.x)[i] };
+    }
+
+    std::vector<Vector> vectors(count);
+    for (size_t i = 0; i < count; ++i) {
+        for (size_t j = 0; j < NComponent; ++j) {
+            (&vectors[i].x)[j] = distribs[j](g);
+        }
+    }
+
+    return vectors;
+}
+
 export class GameScheduler : public IScheduler {
 public:
-    using float4 = DirectX::XMFLOAT4;
-
 protected:
     ~GameScheduler() = default;
 
     void StepFixed()
     {
-        static std::mt19937 g;
-        static std::uniform_int_distribution d(0, 200);
-        switch (d(g)) {
-        case 0:
-        case 1:
-            std::ranges::copy(Random(1, AABB_MIN, AABB_MAX), std::back_inserter(positions));
-            std::ranges::copy(Random(1, { 0, 0, 0, 1 }, { 1, 1, 1, 1 }), std::back_inserter(colors));
-            std::ranges::copy(Random(1, { -1, -1, 0, 0 }, { 1, 1, 0, 0 }), std::back_inserter(velocities));
-            break;
-        case 200:
-            std::invoke([&] {
-                const auto erased = std::uniform_int_distribution<size_t>(0, positions.size() - 1)(g);
-                positions.erase(positions.begin() + erased);
-                colors.erase(colors.begin() + erased);
-                velocities.erase(velocities.begin() + erased);
-            });
-            break;
-        }
-
-        auto iter = std::views::zip(positions, velocities);
-        std::for_each(std::execution::par, iter.begin(), iter.end(), [](auto&& i) {
-            auto&& [p, v] = i;
-            XMStoreFloat4(&p, XMVectorMultiplyAdd(XMVectorReplicate(PERIOD.count()), XMLoadFloat4(&v), XMLoadFloat4(&p)));
-            if (AABB_MIN.x > p.x || p.x > AABB_MAX.x)
-                p.x *= -1;
-            if (AABB_MIN.y > p.y || p.y > AABB_MAX.y)
-                p.y *= -1;
-            p.z = 1;
-            p.w = 1;
-        });
     }
 
-    static constexpr float4 AABB_MIN { -1, -1, -1, 1 };
-    static constexpr float4 AABB_MAX { 1, 1, 1, 1 };
-    std::vector<float4> positions { Random(3, AABB_MIN, AABB_MAX) };
-    std::vector<float4> colors { Random(3, { 0, 0, 0, 1 }, { 1, 1, 1, 1 }) };
-    std::vector<float4> velocities { Random(3, { -1, -1, 0, 0 }, { 1, 1, 0, 0 }) };
+    std::vector<GridSquare> squares
+        = std::views::zip_transform(
+              [](auto&& position, auto&& color) {
+                  return GridSquare { position, color };
+              },
+              Random<XMINT4>(100, { -5, -5, 0, 0 }, { 4, 4, 0, 0 }),
+              Random<XMFLOAT4>(100, { 0, 0, 0, 1 }, { 1, 1, 1, 1 }))
+        | std::ranges::to<std::vector>();
 
 private:
-    static std::vector<float4> Random(size_t count, float4 lower, float4 upper)
-    {
-        static std::mt19937 g;
-        std::uniform_real_distribution<float> x(lower.x, upper.x);
-        std::uniform_real_distribution<float> y(lower.y, upper.y);
-        std::uniform_real_distribution<float> z(lower.z, upper.z);
-        std::uniform_real_distribution<float> w(lower.w, upper.w);
-        std::vector<float4> v(count);
-        for (auto& i : v)
-            i = { x(g), y(g), z(g), w(g) };
-        return v;
-    }
 };
 }

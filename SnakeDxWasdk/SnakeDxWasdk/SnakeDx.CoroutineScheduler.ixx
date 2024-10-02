@@ -2,7 +2,8 @@ module;
 #include "pch.h"
 export module SnakeDx:CoroutineScheduler;
 
-import std;
+import std.compat;
+//import std;
 
 import SnakeGame;
 
@@ -16,33 +17,6 @@ namespace winrt {
     using namespace ::winrt::Windows::Foundation;
 }
 
-class TrianglePass final : ShaderPass {
-public:
-    TrianglePass(ID3D11Device5& device)
-        : ShaderPass(
-            device,
-            L"Triangle.vs.cso",
-            L"PassThru.ps.cso",
-            {
-                D3D11_INPUT_ELEMENT_DESC {
-                    .SemanticName = "InstancePosition",
-                    .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                    .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-                    .InstanceDataStepRate = 1,
-                },
-                D3D11_INPUT_ELEMENT_DESC {
-                    .SemanticName = "InstanceColor",
-                    .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                    .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-                    .InstanceDataStepRate = 1,
-                },
-            })
-    {
-    }
-
-    void Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance);
-};
-
 class SquarePass final : ShaderPass {
 public:
     SquarePass(ID3D11Device5& device)
@@ -53,13 +27,17 @@ public:
             {
                 D3D11_INPUT_ELEMENT_DESC {
                     .SemanticName = "InstancePosition",
-                    .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                    .Format = DXGI_FORMAT_R32G32B32A32_SINT,
+                    .InputSlot = 0,
+                    .AlignedByteOffset = 0,
                     .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
                     .InstanceDataStepRate = 1,
                 },
                 D3D11_INPUT_ELEMENT_DESC {
                     .SemanticName = "InstanceColor",
                     .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                    .InputSlot = 0,
+                    .AlignedByteOffset = sizeof(SnakeGame::GridSquare::position),
                     .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
                     .InstanceDataStepRate = 1,
                 },

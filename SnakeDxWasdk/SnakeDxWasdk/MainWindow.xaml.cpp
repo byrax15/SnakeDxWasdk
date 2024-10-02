@@ -17,9 +17,10 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::SnakeDxWasdk::implementation {
 MainWindow::MainWindow()
-    : frameTimeListener([&, uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
+    : frameTimeListener([weak = get_weak(), uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
         co_await uiThread;
-        frameTime().Text(std::format(L"{:>.4}", SnakeDx::scheduler.frameTime.count()));
+        if (auto strong = weak.get())
+            strong->frameTime().Text(std::format(L"{:>.4}", SnakeDx::scheduler.frameTime.count()));
     })
 {
     auto [m, dl] = SnakeDx::scheduler.deltaListeners.ToRef();
@@ -54,7 +55,6 @@ void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectabl
         r.ResetSwapChainPanel();
     }
     {
-        frameTimeListener = []() -> winrt::fire_and_forget { co_return; };
         auto [m, dl] = SnakeDx::scheduler.deltaListeners.ToRef();
         std::scoped_lock lock(m);
         dl.remove(&frameTimeListener);
