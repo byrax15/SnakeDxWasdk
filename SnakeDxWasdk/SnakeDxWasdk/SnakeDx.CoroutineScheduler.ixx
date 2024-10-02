@@ -43,6 +43,33 @@ public:
     void Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance);
 };
 
+class SquarePass final : ShaderPass {
+public:
+    SquarePass(ID3D11Device5& device)
+        : ShaderPass(
+            device,
+            L"Square.vs.cso",
+            L"PassThru.ps.cso",
+            {
+                D3D11_INPUT_ELEMENT_DESC {
+                    .SemanticName = "InstancePosition",
+                    .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                    .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+                    .InstanceDataStepRate = 1,
+                },
+                D3D11_INPUT_ELEMENT_DESC {
+                    .SemanticName = "InstanceColor",
+                    .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                    .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+                    .InstanceDataStepRate = 1,
+                },
+            })
+    {
+    }
+
+    void Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance);
+};
+
 export class CoroutineScheduler final : public SnakeGame::GameScheduler {
 private:
     winrt::apartment_context thread;
@@ -58,7 +85,7 @@ public:
 
     // DirectX draw resources
     SnakeGame::Synchronized<Resources> resources;
-    TrianglePass trianglePass;
+    SquarePass trianglePass;
     winrt::com_ptr<ID3D11Buffer> instances;
 
     struct Camera {

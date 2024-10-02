@@ -49,6 +49,19 @@ void TrianglePass::Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, 
     context.DrawInstanced(3, size_instance, 0, 0);
 }
 
+void SquarePass::Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance)
+{
+    context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    context.IASetInputLayout(m_layout.get());
+    context.VSSetShader(m_vertex.get(), 0, 0);
+    context.PSSetShader(m_pixel.get(), 0, 0);
+    constexpr UINT strides = gsl::narrow<UINT>(sizeof SnakeGame::GameScheduler::float4);
+    constexpr UINT offsets = 0;
+    context.IASetVertexBuffers(0, 1, &instance_buf, &strides, &offsets);
+    context.VSSetConstantBuffers(0, 1, &camera_buf);
+    context.DrawInstanced(6, size_instance, 0, 0);
+}
+
 CoroutineScheduler::CoroutineScheduler(Token)
     : resources(token)
     , trianglePass(resources->D3DDevice())
@@ -73,10 +86,10 @@ void CoroutineScheduler::StepFixed()
     auto& context = resources->D3DContext();
     D3D11_MAPPED_SUBRESOURCE mapped;
     context.Map(instances.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
-    std::ranges::transform(std::views::zip(positions, colors), reinterpret_cast<std::array<float4, 2>*>(mapped.pData), 
+    std::ranges::transform(std::views::zip(positions, colors), reinterpret_cast<std::array<float4, 2>*>(mapped.pData),
         [](auto&& i) {
             const auto& [p, c] = i;
-            return std::array{ p, c };
+            return std::array { p, c };
         });
     context.Unmap(instances.get(), {});
 
