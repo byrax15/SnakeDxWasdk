@@ -3,6 +3,7 @@
 #include "MainWindow.g.h"
 
 import std;
+import SnakeDx;
 
 namespace winrt::SnakeDxWasdk::implementation {
 struct MainWindow : MainWindowT<MainWindow> {
@@ -13,6 +14,8 @@ struct MainWindow : MainWindowT<MainWindow> {
     void swapChainPanel_Unloaded(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     void swapChainPanel_KeyDown(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e);
 
+private:
+    std::shared_ptr<SnakeDx::CoroutineScheduler> scheduler = SnakeDx::scheduler;
     std::function<winrt::fire_and_forget(void)> frameTimeListener;
 };
 }

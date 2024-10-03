@@ -20,10 +20,10 @@ MainWindow::MainWindow()
     : frameTimeListener([weak = get_weak(), uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
         co_await uiThread;
         if (auto strong = weak.get())
-            strong->frameTime().Text(std::format(L"{:>.4}", SnakeDx::scheduler.frameTime.count()));
+            strong->frameTime().Text(std::format(L"{:>.4}", strong->scheduler->frameTime.count()));
     })
 {
-    auto [m, dl] = SnakeDx::scheduler.deltaListeners.ToRef();
+    auto [m, dl] = scheduler->deltaListeners.ToRef();
     std::scoped_lock lock(m);
     dl.emplace_back(&frameTimeListener);
 }
@@ -42,7 +42,7 @@ void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
 {
-    auto [m, r] = SnakeDx::scheduler.resources.ToRef();
+    auto [m, r] = scheduler->resources.ToRef();
     std::scoped_lock lock(m);
     r.SetSwapChainPanel(swapChainPanel(), e.NewSize());
 }
@@ -50,25 +50,26 @@ void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEven
 void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&)
 {
     {
-        auto [m, r] = SnakeDx::scheduler.resources.ToRef();
+        auto [m, r] = scheduler->resources.ToRef();
         std::scoped_lock lock(m);
         r.ResetSwapChainPanel();
     }
     {
-        auto [m, dl] = SnakeDx::scheduler.deltaListeners.ToRef();
+        auto [m, dl] = scheduler->deltaListeners.ToRef();
         std::scoped_lock lock(m);
         dl.remove(&frameTimeListener);
     };
+    scheduler.reset();
 }
 
 void MainWindow::swapChainPanel_KeyDown(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e)
 {
     switch (e.Key()) {
     case winrt::Windows::System::VirtualKey::Number0:
-        SnakeDx::scheduler.resources->swapInterval = 0;
+        scheduler->resources->swapInterval = 0;
         break;
     case winrt::Windows::System::VirtualKey::Number1:
-        SnakeDx::scheduler.resources->swapInterval = 1;
+        scheduler->resources->swapInterval = 1;
         break;
     case winrt::Windows::System::VirtualKey::Escape:
         Close();

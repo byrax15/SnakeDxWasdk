@@ -1,9 +1,9 @@
 module;
 #include "pch.h"
+#include <cstddef>
 export module SnakeDx:CoroutineScheduler;
 
-import std.compat;
-//import std;
+import std;
 
 import SnakeGame;
 
@@ -29,7 +29,7 @@ public:
                     .SemanticName = "InstancePosition",
                     .Format = DXGI_FORMAT_R32G32B32A32_SINT,
                     .InputSlot = 0,
-                    .AlignedByteOffset = 0,
+                    .AlignedByteOffset = offsetof(SnakeGame::GridSquare, position),
                     .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
                     .InstanceDataStepRate = 1,
                 },
@@ -37,7 +37,7 @@ public:
                     .SemanticName = "InstanceColor",
                     .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
                     .InputSlot = 0,
-                    .AlignedByteOffset = sizeof(SnakeGame::GridSquare::position),
+                    .AlignedByteOffset = offsetof(SnakeGame::GridSquare, color),
                     .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
                     .InstanceDataStepRate = 1,
                 },
@@ -90,5 +90,7 @@ protected:
 
 private:
     winrt::IAsyncAction Run();
-} scheduler(token);
+};
+
+export auto scheduler = std::make_shared<CoroutineScheduler>(token);
 }
