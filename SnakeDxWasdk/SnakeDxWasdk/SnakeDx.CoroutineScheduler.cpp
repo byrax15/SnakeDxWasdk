@@ -81,7 +81,7 @@ void CoroutineScheduler::StepFixed()
     auto& context = resources->D3DContext();
     D3D11_MAPPED_SUBRESOURCE mapped;
     context.Map(instances.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
-    std::memcpy(mapped.pData, squares.data(), byte_size(squares));
+    std::ranges::copy(squares, reinterpret_cast<SnakeGame::GridSquare*>(mapped.pData));
     context.Unmap(instances.get(), {});
 
     static std::mt19937 g;

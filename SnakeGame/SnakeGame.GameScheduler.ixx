@@ -11,8 +11,15 @@ namespace {
 }
 
 export struct GridSquare {
+    enum class Type {
+        HEAD,
+        TAIL,
+        APPLE,
+    };
+
     XMINT4 position;
     XMFLOAT4 color;
+    Type type;
 };
 
 export template <typename Vector>
@@ -26,8 +33,8 @@ std::vector<Vector> Random(size_t count, Vector lower, Vector upper)
 
     static std::random_device g;
     std::array<Distribution, NComponent> distribs;
-    for (size_t i = 0; i < NComponent; ++i) {
-        distribs[i] = Distribution { (&lower.x)[i], (&upper.x)[i] };
+    for (size_t j = 0; j < NComponent; ++j) {
+        distribs[j] = Distribution { (&lower.x)[j], (&upper.x)[j] };
     }
 
     std::vector<Vector> vectors(count);
@@ -38,6 +45,29 @@ std::vector<Vector> Random(size_t count, Vector lower, Vector upper)
     }
 
     return vectors;
+}
+
+export template <typename Vector>
+Vector Random(Vector lower, Vector upper)
+{
+    using TComponent = decltype(Vector::x);
+    constexpr auto NComponent = sizeof(Vector) / sizeof(TComponent);
+    using Distribution = std::conditional_t<std::is_integral_v<TComponent>,
+        std::uniform_int_distribution<TComponent>,
+        std::uniform_real_distribution<TComponent>>;
+
+    static std::random_device g;
+    std::array<Distribution, NComponent> distribs;
+    for (size_t j = 0; j < NComponent; ++j) {
+        distribs[j] = Distribution { (&lower.x)[j], (&upper.x)[j] };
+    }
+
+    Vector vector;
+    for (size_t j = 0; j < NComponent; ++j) {
+        (&vector.x)[j] = distribs[j](g);
+    }
+
+    return vector;
 }
 
 export class GameScheduler : public IScheduler {
@@ -54,12 +84,11 @@ public:
 protected:
     GameScheduler();
     ~GameScheduler();
-   
+
     void StepFixed() override;
 
     static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
-    std::vector<GridSquare> squares;
 
-private:
+    std::deque<GridSquare> squares;
 };
 }
