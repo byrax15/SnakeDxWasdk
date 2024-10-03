@@ -15,7 +15,7 @@ public:
     using clock = steady_clock;
     using seconds = std::ratio<1>;
     using timestep = duration<float, seconds>;
-    static constexpr std::uint64_t FREQUENCY { 50 };
+    static constexpr std::uint64_t FREQUENCY { 12 };
     static constexpr timestep PERIOD { 1. / FREQUENCY };
 
 public:

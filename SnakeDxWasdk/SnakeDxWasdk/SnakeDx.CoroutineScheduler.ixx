@@ -17,37 +17,6 @@ namespace winrt {
     using namespace ::winrt::Windows::Foundation;
 }
 
-class SquarePass final : ShaderPass {
-public:
-    SquarePass(ID3D11Device5& device)
-        : ShaderPass(
-            device,
-            L"Square.vs.cso",
-            L"PassThru.ps.cso",
-            {
-                D3D11_INPUT_ELEMENT_DESC {
-                    .SemanticName = "InstancePosition",
-                    .Format = DXGI_FORMAT_R32G32B32A32_SINT,
-                    .InputSlot = 0,
-                    .AlignedByteOffset = offsetof(SnakeGame::GridSquare, position),
-                    .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-                    .InstanceDataStepRate = 1,
-                },
-                D3D11_INPUT_ELEMENT_DESC {
-                    .SemanticName = "InstanceColor",
-                    .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-                    .InputSlot = 0,
-                    .AlignedByteOffset = offsetof(SnakeGame::GridSquare, color),
-                    .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-                    .InstanceDataStepRate = 1,
-                },
-            })
-    {
-    }
-
-    void Draw(ID3D11DeviceContext& context, ID3D11Buffer* camera_buf, ID3D11Buffer* instance_buf, UINT size_instance);
-};
-
 export class CoroutineScheduler final : public SnakeGame::GameScheduler {
 private:
     winrt::apartment_context thread;
@@ -59,16 +28,15 @@ private:
 public:
     // Scheduling
     SnakeGame::Synchronized<std::list<std::function<winrt::fire_and_forget(void)>*>> deltaListeners {};
-    timestep frameTime {};
 
     // DirectX draw resources
     SnakeGame::Synchronized<Resources> resources;
-    SquarePass trianglePass;
-    winrt::com_ptr<ID3D11Buffer> instances;
+    ShaderPass pass;
 
     struct Camera {
         DirectX::XMFLOAT4X4 vp;
     };
+    winrt::com_ptr<ID3D11Buffer> instances;
     winrt::com_ptr<ID3D11Buffer> camera;
 
 public:

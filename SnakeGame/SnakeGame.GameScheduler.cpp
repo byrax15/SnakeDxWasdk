@@ -21,18 +21,28 @@ GameScheduler::~GameScheduler() = default;
 
 void GameScheduler::StepFixed()
 {
-    static std::random_device g;
-    std::uniform_int_distribution d(0, 200);
-    if (d(g) != 0)
-        return;
-    auto iter = std::views::zip(squares, Random<XMINT4>(squares.size(), { -1, -1, 0, 0 }, { 1, 1, 0, 0 }));
-    std::for_each(std::execution::par_unseq, iter.begin(), iter.end(), [](auto&& i) {
-        auto& [square, vel] = i;
-        XMStoreSInt4(&square.position,
-            XMVectorClamp(
-                XMLoadSInt4(&square.position) + XMLoadSInt4(&vel),
-                XMLoadSInt4(&BOUNDS.first),
-                XMLoadSInt4(&BOUNDS.second)));
-    });
+    auto& [position, _color] = squares[0];
+    switch (direction) {
+    case Direction::UP:
+        position.y += 1;
+        break;
+    case Direction::DOWN:
+        position.y -= 1;
+        break;
+    case Direction::LEFT:
+        position.x -= 1;
+        break;
+    case Direction::RIGHT:
+        position.x += 1;
+        break;
+    }
+
+    for (auto [c, l, u] : std::views::zip(std::span { &position.x, 2 }, std::span { &BOUNDS.first.x, 2 }, std::span { &BOUNDS.second.x, 2 })) {
+        if (c < l) {
+            c = u;
+        } else if (u < c) {
+            c = l;
+        }
+    }
 }
 }

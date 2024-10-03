@@ -6,12 +6,16 @@ import std;
 
 namespace SnakeDx {
 
-export class ShaderPass {
+export class ShaderPass final {
+public:
+    winrt::com_ptr<ID3D11VertexShader> m_vertex;
+    winrt::com_ptr<ID3D11PixelShader> m_pixel;
+    winrt::com_ptr<ID3D11InputLayout> m_layout;
+
 public:
     ShaderPass(ShaderPass const&) = delete;
     ShaderPass& operator=(ShaderPass const&) = delete;
 
-public:
     ShaderPass(ID3D11Device& device,
         std::wstring_view vertex_fname, std::wstring_view pixel_fname,
         std::initializer_list<D3D11_INPUT_ELEMENT_DESC> inputs = {})
@@ -29,13 +33,6 @@ public:
                 device.CreateInputLayout(std::data(inputs), inputs.size(), vbytes.data(), vbytes.size(), m_layout.put()));
         }
     }
-
-protected:
-    ~ShaderPass() { }
-
-    winrt::com_ptr<ID3D11VertexShader> m_vertex;
-    winrt::com_ptr<ID3D11PixelShader> m_pixel;
-    winrt::com_ptr<ID3D11InputLayout> m_layout;
 
 private:
     static std::vector<char> ReadBytes(std::wstring_view fName)

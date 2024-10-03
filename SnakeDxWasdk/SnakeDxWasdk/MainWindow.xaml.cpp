@@ -17,15 +17,15 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::SnakeDxWasdk::implementation {
 MainWindow::MainWindow()
-    : frameTimeListener([weak = get_weak(), uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
-        co_await uiThread;
-        if (auto strong = weak.get())
-            strong->frameTime().Text(std::format(L"{:>.4}", strong->scheduler->frameTime.count()));
-    })
+    //: frameTimeListener([weak = get_weak(), uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
+    //    co_await uiThread;
+    //    if (auto strong = weak.get())
+    //        strong->frameTime().Text(std::format(L"{:>.4}", strong->scheduler->frameTime.count()));
+    //})
 {
-    auto [m, dl] = scheduler->deltaListeners.ToRef();
-    std::scoped_lock lock(m);
-    dl.emplace_back(&frameTimeListener);
+    //auto [m, dl] = scheduler->deltaListeners.ToRef();
+    //std::scoped_lock lock(m);
+    //dl.emplace_back(&frameTimeListener);
 }
 
 void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
@@ -54,17 +54,29 @@ void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectabl
         std::scoped_lock lock(m);
         r.ResetSwapChainPanel();
     }
-    {
-        auto [m, dl] = scheduler->deltaListeners.ToRef();
-        std::scoped_lock lock(m);
-        dl.remove(&frameTimeListener);
-    };
+    //{
+    //    auto [m, dl] = scheduler->deltaListeners.ToRef();
+    //    std::scoped_lock lock(m);
+    //    dl.remove(&frameTimeListener);
+    //};
     scheduler.reset();
 }
 
 void MainWindow::swapChainPanel_KeyDown(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e)
 {
     switch (e.Key()) {
+    case winrt::Windows::System::VirtualKey::A:
+        scheduler->direction = SnakeGame::GameScheduler::Direction::LEFT;
+        break;
+    case winrt::Windows::System::VirtualKey::D:
+        scheduler->direction = SnakeGame::GameScheduler::Direction::RIGHT;
+        break;
+    case winrt::Windows::System::VirtualKey::W:
+        scheduler->direction = SnakeGame::GameScheduler::Direction::UP;
+        break;
+    case winrt::Windows::System::VirtualKey::S:
+        scheduler->direction = SnakeGame::GameScheduler::Direction::DOWN;
+        break;
     case winrt::Windows::System::VirtualKey::Number0:
         scheduler->resources->swapInterval = 0;
         break;
