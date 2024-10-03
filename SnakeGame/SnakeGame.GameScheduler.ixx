@@ -89,6 +89,8 @@ protected:
 
     static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
 
-    std::deque<GridSquare> squares;
+    std::vector<GridSquare> squares;
+
+    auto& Head() { return squares[0]; }
 };
 }
