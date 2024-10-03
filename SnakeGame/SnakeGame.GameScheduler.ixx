@@ -42,21 +42,23 @@ std::vector<Vector> Random(size_t count, Vector lower, Vector upper)
 
 export class GameScheduler : public IScheduler {
 public:
+    enum class Direction {
+        NONE,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+    } direction
+        = Direction::NONE;
+
 protected:
-    ~GameScheduler() = default;
+    GameScheduler();
+    ~GameScheduler();
+   
+    void StepFixed() override;
 
-    void StepFixed()
-    {
-    }
-
-    std::vector<GridSquare> squares
-        = std::views::zip_transform(
-              [](auto&& position, auto&& color) {
-                  return GridSquare { position, color };
-              },
-              Random<XMINT4>(100, { -5, -5, 0, 0 }, { 4, 4, 0, 0 }),
-              Random<XMFLOAT4>(100, { 0, 0, 0, 1 }, { 1, 1, 1, 1 }))
-        | std::ranges::to<std::vector>();
+    static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
+    std::vector<GridSquare> squares;
 
 private:
 };

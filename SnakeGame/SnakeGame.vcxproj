@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\SnakeDxWasdk\SnakeDxWasdk\SnakeGame.Scheduler.ixx" />
     <ClCompile Include="ref_cast.ixx" />
+    <ClCompile Include="SnakeGame.GameScheduler.cpp" />
     <ClCompile Include="SnakeGame.GameScheduler.ixx" />
     <ClCompile Include="SnakeGame.ixx" />
     <ClCompile Include="SnakeGame.Synchronized.ixx" />
