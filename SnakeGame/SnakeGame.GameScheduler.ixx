@@ -97,6 +97,8 @@ public:
     } direction
         = Direction::NONE;
 
+    size_t Score() const { return tail.size(); }
+
 protected:
     GameScheduler();
     ~GameScheduler();

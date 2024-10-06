@@ -94,7 +94,7 @@ CoroutineScheduler::CoroutineScheduler(Token)
             auto const& [i, j] = ij;
             return SnakeGame::GridSquare {
                 XMINT4 { i, j, 0, 0 },
-                (i + j) % 2 ? XMFLOAT4 { .9, .9f, .9f, 1 } : XMFLOAT4 { .7f, .7f, .7f, 1 },
+                (i + j) % 2 ? XMFLOAT4 { .9, .9f, 1.f, 1 } : XMFLOAT4 { .7f, .7, 1.f, 1 },
             };
         });
     }
@@ -121,12 +121,12 @@ void CoroutineScheduler::StepFixed()
     std::ranges::copy(Squares(), reinterpret_cast<SnakeGame::GridSquare*>(mapped.pData));
     context.Unmap(instances.get(), {});
 
-    static std::mt19937 g;
-    static std::uniform_int_distribution d { 0, 200 };
-    if (d(g) == 0) {
-        auto [m, r] = resources.ToRef();
-        std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
-    }
+    //static std::mt19937 g;
+    //static std::uniform_int_distribution d { 0, 200 };
+    //if (d(g) == 0) {
+    //    auto [m, r] = resources.ToRef();
+    //    std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
+    //}
 
     auto [m, fl] = fixedListeners.ToRef();
     std::scoped_lock lock(m);

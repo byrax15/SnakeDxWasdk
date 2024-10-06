@@ -24,6 +24,9 @@ MainWindow::MainWindow()
         [weak = get_weak(), uiThread = winrt::apartment_context()]() -> winrt::fire_and_forget {
             co_await uiThread;
             if (auto strong = weak.get(); strong) {
+                auto score = strong->score();
+                score.Text(winrt::to_hstring(strong->scheduler->Score()));
+
                 auto button = strong->myButton();
                 switch (strong->scheduler->state) {
                 case SnakeGame::GameScheduler::GameState::LOST:
