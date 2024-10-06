@@ -61,7 +61,7 @@ CoroutineScheduler::CoroutineScheduler(Token)
               },
           })
 {
-    buffer_realloc(resources->D3DDevice(), instances, byte_size(squares));
+    buffer_realloc(resources->D3DDevice(), instances, SizeBytesSquares());
     buffer_realloc(resources->D3DDevice(), camera, sizeof(Camera), D3D11_BIND_CONSTANT_BUFFER);
     loop = Run();
 }
@@ -74,14 +74,14 @@ CoroutineScheduler::~CoroutineScheduler()
 void CoroutineScheduler::StepFixed()
 {
     GameScheduler::StepFixed();
-    if (const auto psize = byte_size(squares); psize > byte_size(*instances)) {
+    if (const auto psize = SizeBytesSquares(); psize > byte_size(*instances)) {
         buffer_realloc(resources->D3DDevice(), instances, psize);
     }
 
     auto& context = resources->D3DContext();
     D3D11_MAPPED_SUBRESOURCE mapped;
     context.Map(instances.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
-    std::ranges::copy(squares, reinterpret_cast<SnakeGame::GridSquare*>(mapped.pData));
+    std::ranges::copy(Squares(), reinterpret_cast<SnakeGame::GridSquare*>(mapped.pData));
     context.Unmap(instances.get(), {});
 
     static std::mt19937 g;
@@ -135,7 +135,7 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
 
                 context.PSSetShader(m_pixel.get(), 0, 0);
 
-                context.DrawInstanced(6, squares.size(), 0, 0);
+                context.DrawInstanced(6, SizeSquares(), 0, 0);
             }
 
             r.DrawEnd();

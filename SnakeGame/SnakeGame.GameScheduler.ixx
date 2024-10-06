@@ -10,7 +10,7 @@ namespace {
     using namespace DirectX;
 }
 
-export struct GridSquare {
+export struct GridSquare final {
     enum class Type {
         HEAD,
         TAIL,
@@ -20,6 +20,10 @@ export struct GridSquare {
     XMINT4 position;
     XMFLOAT4 color;
     Type type;
+
+    static GridSquare MakeHead();
+    static GridSquare MakeTail(XMINT4 position);
+    static GridSquare MakeApple();
 };
 
 export template <typename Vector>
@@ -72,6 +76,8 @@ Vector Random(Vector lower, Vector upper)
 
 export class GameScheduler : public IScheduler {
 public:
+    static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
+
     enum class Direction {
         NONE,
         UP,
@@ -87,10 +93,12 @@ protected:
 
     void StepFixed() override;
 
-    static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
+    std::vector<GridSquare> Squares() const;
+    size_t SizeSquares() const;
+    size_t SizeBytesSquares() const;
 
-    std::vector<GridSquare> squares;
-
-    auto& Head() { return squares[0]; }
+private:
+    GridSquare head;
+    std::vector<GridSquare> tail, apples;
 };
 }
