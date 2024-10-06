@@ -78,6 +78,14 @@ export class GameScheduler : public IScheduler {
 public:
     static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
 
+    enum class GameState {
+        RUNNING,
+        PAUSED,
+        LOST,
+        RESETTING,
+    } state
+        = GameState::RUNNING;
+
     enum class Direction {
         NONE,
         UP,
@@ -100,5 +108,7 @@ protected:
 private:
     GridSquare head;
     std::vector<GridSquare> tail, apples;
+
+public:
 };
 }

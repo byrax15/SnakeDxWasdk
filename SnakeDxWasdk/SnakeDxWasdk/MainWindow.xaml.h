@@ -16,7 +16,7 @@ struct MainWindow : MainWindowT<MainWindow> {
 
 private:
     std::shared_ptr<SnakeDx::CoroutineScheduler> scheduler = SnakeDx::scheduler;
-    //std::function<winrt::fire_and_forget(void)> frameTimeListener;
+    SnakeDx::AsyncCallback* gameUpdateListener;
 };
 }
 

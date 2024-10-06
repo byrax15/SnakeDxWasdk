@@ -17,27 +17,34 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::SnakeDxWasdk::implementation {
 MainWindow::MainWindow()
-    //: frameTimeListener([weak = get_weak(), uiThread = winrt::apartment_context {}]() -> winrt::fire_and_forget {
-    //    co_await uiThread;
-    //    if (auto strong = weak.get())
-    //        strong->frameTime().Text(std::format(L"{:>.4}", strong->scheduler->frameTime.count()));
-    //})
 {
-    //auto [m, dl] = scheduler->deltaListeners.ToRef();
-    //std::scoped_lock lock(m);
-    //dl.emplace_back(&frameTimeListener);
+    auto [m, fl] = scheduler->fixedListeners.ToRef();
+    std::scoped_lock lock(m);
+    gameUpdateListener = &fl.emplace_back(
+        [weak = get_weak(), uiThread = winrt::apartment_context()]() -> winrt::fire_and_forget {
+            co_await uiThread;
+            if (auto strong = weak.get(); strong) {
+                auto button = strong->myButton();
+                switch (strong->scheduler->state) {
+                case SnakeGame::GameScheduler::GameState::LOST:
+                    button.Content(box_value(L"You Lost!"));
+                    button.Visibility(Visibility::Visible);
+                    break;
+                case SnakeGame::GameScheduler::GameState::PAUSED:
+                    button.Content(box_value(L"Paused"));
+                    button.Visibility(Visibility::Visible);
+                    break;
+                default:
+                    button.Visibility(Visibility::Collapsed);
+                    break;
+                }
+            }
+        });
 }
 
 void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 {
-    static auto start_value = myButton().Content();
-    static auto hello = box_value(L"Your mom");
-    static auto toggle = false;
-    if (toggle)
-        myButton().Content(hello);
-    else
-        myButton().Content(start_value);
-    toggle = !toggle;
+    scheduler->state = SnakeGame::GameScheduler::GameState::RESETTING;
 }
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
@@ -54,17 +61,27 @@ void MainWindow::swapChainPanel_Unloaded(winrt::Windows::Foundation::IInspectabl
         std::scoped_lock lock(m);
         r.ResetSwapChainPanel();
     }
-    //{
-    //    auto [m, dl] = scheduler->deltaListeners.ToRef();
-    //    std::scoped_lock lock(m);
-    //    dl.remove(&frameTimeListener);
-    //};
+    {
+        auto [m, fl] = scheduler->fixedListeners.ToRef();
+        std::scoped_lock lock(m);
+        std::erase_if(fl, [&](auto&& l) { return &l == gameUpdateListener; });
+    };
     scheduler.reset();
 }
 
 void MainWindow::swapChainPanel_KeyDown(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e)
 {
     switch (e.Key()) {
+    case winrt::Windows::System::VirtualKey::P:
+        switch (scheduler->state) {
+        case SnakeGame::GameScheduler::GameState::PAUSED:
+            scheduler->state = SnakeGame::GameScheduler::GameState::RUNNING;
+            break;
+        case SnakeGame::GameScheduler::GameState::RUNNING:
+            scheduler->state = SnakeGame::GameScheduler::GameState::PAUSED;
+            break;
+        }
+        break;
     case winrt::Windows::System::VirtualKey::A:
         scheduler->direction = SnakeGame::GameScheduler::Direction::LEFT;
         break;

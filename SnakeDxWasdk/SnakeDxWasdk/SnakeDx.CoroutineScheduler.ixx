@@ -17,6 +17,8 @@ namespace winrt {
     using namespace ::winrt::Windows::Foundation;
 }
 
+export using AsyncCallback = std::function<winrt::fire_and_forget()>;
+
 export class CoroutineScheduler final : public SnakeGame::GameScheduler {
 private:
     winrt::apartment_context thread;
@@ -27,7 +29,8 @@ private:
 
 public:
     // Scheduling
-    SnakeGame::Synchronized<std::list<std::function<winrt::fire_and_forget(void)>*>> deltaListeners {};
+    SnakeGame::Synchronized<std::vector<AsyncCallback>> deltaListeners {};
+    SnakeGame::Synchronized<std::vector<AsyncCallback>> fixedListeners {};
 
     // DirectX draw resources
     SnakeGame::Synchronized<Resources> resources;

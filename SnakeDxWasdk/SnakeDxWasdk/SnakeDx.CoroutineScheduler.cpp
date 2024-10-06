@@ -90,6 +90,14 @@ void CoroutineScheduler::StepFixed()
         auto [m, r] = resources.ToRef();
         std::shuffle(r.m_clearColor.begin(), r.m_clearColor.begin() + 3, g);
     }
+
+    auto [m, fl] = fixedListeners.ToRef();
+    std::scoped_lock lock(m);
+    if (fl.empty())
+        return;
+    for (auto& l : fl) {
+        l();
+    }
 }
 
 void CoroutineScheduler::StepDelta(timestep const& delta)
@@ -148,7 +156,7 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
         if (dl.empty())
             return;
         for (auto& l : dl) {
-            l->operator()();
+            l();
         }
     }
 }

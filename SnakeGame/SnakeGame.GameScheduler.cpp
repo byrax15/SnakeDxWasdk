@@ -14,7 +14,7 @@ GridSquare GridSquare::MakeHead()
 {
     return GridSquare {
         { 0, 0, 0, 0 },
-        { .2, 1, .2, 1 },
+        { .1f, .9f, .1f, 1.f },
         GridSquare::Type::HEAD,
     };
 }
@@ -23,7 +23,7 @@ GridSquare GridSquare::MakeTail(XMINT4 position)
 {
     return GridSquare {
         position,
-        Random<XMFLOAT4>({ .2, 1, .2, 1 }, { .3, 1, .3, 1 }),
+        Random<XMFLOAT4>({ .2f, 1.f, .2f, 1.f }, { .4f, 1.f, .4f, 1.f }),
         GridSquare::Type::TAIL,
     };
 }
@@ -32,7 +32,7 @@ GridSquare GridSquare::MakeApple()
 {
     return GridSquare {
         Random<XMINT4>(GameScheduler::BOUNDS.first, GameScheduler::BOUNDS.second),
-        Random<XMFLOAT4>({ 1, 0, 0, 1 }, { 1, .4, 0, 1 }),
+        Random<XMFLOAT4>({ 1, 0, 0, 1 }, { 1, .4f, 0, 1 }),
         GridSquare::Type::APPLE,
     };
 }
@@ -48,6 +48,13 @@ GameScheduler::~GameScheduler()
 
 void GameScheduler::StepFixed()
 {
+    if (state == GameState::RESETTING) {
+        *this = GameScheduler {};
+    }
+
+    if (state != GameState::RUNNING)
+        return;
+
     const auto head_prev_pos = XMLoadSInt4(&head.position);
 
     // interpret input
@@ -78,10 +85,29 @@ void GameScheduler::StepFixed()
         }
     }
 
+    const auto head_pos = XMLoadSInt4(&head.position);
+
+    // Check Tail collisions
+    std::atomic touched_tail = false;
+    std::for_each(std::execution::par, tail.begin(), tail.end(), [&](auto&& t) {
+        if (XMVector4Equal(head_pos, XMLoadSInt4(&t.position))) {
+            touched_tail = true;
+        }
+    });
+    if (touched_tail) {
+        if (!tail.empty()) { // Move is skipped when apple is eaten on the frame
+            for (auto [l, r] : tail | std::views::pairwise) {
+                l.position = r.position;
+            }
+            XMStoreSInt4(&tail.rbegin()->position, head_prev_pos);
+        }
+        state = GameState::LOST;
+        return;
+    }
+
     // Check apple collisions
     std::vector delete_apples(apples.size(), false);
     std::atomic ate_apple = false;
-    const auto head_pos = XMLoadSInt4(&head.position);
     auto iter = std::views::zip(apples, delete_apples);
     std::for_each(std::execution::par, iter.begin(), iter.end(), [&](auto&& tuple) {
         auto& [apple, del] = tuple;
@@ -99,8 +125,8 @@ void GameScheduler::StepFixed()
 
     if (ate_apple) {
         apples.emplace_back(GridSquare::MakeApple());
-        const auto& last_pos = tail.rbegin() == tail.rend() ? head : *tail.rbegin();
-        auto& new_tail = tail.emplace_back(last_pos);
+        const auto& last_pos = tail.rbegin() == tail.rend() ? head.position : tail.rbegin()->position;
+        auto& new_tail = tail.emplace_back(GridSquare::MakeTail(last_pos));
         XMStoreSInt4(&new_tail.position, head_prev_pos);
     } else if (!tail.empty()) { // Move is skipped when apple is eaten on the frame
         for (auto [l, r] : tail | std::views::pairwise) {
