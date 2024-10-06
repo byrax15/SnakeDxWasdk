@@ -16,7 +16,18 @@
                     KeyDown="swapChainPanel_KeyDown"
                     >
         <TextBlock>Score: <Run x:Name="score">0</Run></TextBlock>
-        <Button x:Name="myButton" Click="myButton_Click" Visibility="Collapsed" ></Button>
-
+        <StackPanel x:Name="statusPanel" 
+                    Visibility="Collapsed" 
+                    Orientation="Vertical" 
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Background="SlateGray"
+                    >
+            <TextBlock x:Name="statusText" HorizontalTextAlignment="Center"></TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="myButton" Click="myButton_Click">New Game</Button>
+                <Button x:Name="quitButton" Click="quitButton_Click">Quit</Button>
+            </StackPanel>
+        </StackPanel>
     </SwapChainPanel>
 </Window>

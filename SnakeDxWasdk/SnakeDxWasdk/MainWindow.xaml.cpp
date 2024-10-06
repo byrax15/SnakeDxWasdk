@@ -27,18 +27,19 @@ MainWindow::MainWindow()
                 auto score = strong->score();
                 score.Text(winrt::to_hstring(strong->scheduler->Score()));
 
-                auto button = strong->myButton();
+                auto statusPanel = strong->statusPanel();
+                auto statusText = strong->statusText();
                 switch (strong->scheduler->state) {
                 case SnakeGame::GameScheduler::GameState::LOST:
-                    button.Content(box_value(L"You Lost!"));
-                    button.Visibility(Visibility::Visible);
+                    statusText.Text(L"You Lost!");
+                    statusPanel.Visibility(Visibility::Visible);
                     break;
                 case SnakeGame::GameScheduler::GameState::PAUSED:
-                    button.Content(box_value(L"Paused"));
-                    button.Visibility(Visibility::Visible);
+                    statusText.Text(L"Paused");
+                    statusPanel.Visibility(Visibility::Visible);
                     break;
                 default:
-                    button.Visibility(Visibility::Collapsed);
+                    statusPanel.Visibility(Visibility::Collapsed);
                     break;
                 }
             }
@@ -48,6 +49,11 @@ MainWindow::MainWindow()
 void MainWindow::myButton_Click(IInspectable const&, RoutedEventArgs const&)
 {
     scheduler->state = SnakeGame::GameScheduler::GameState::RESETTING;
+}
+
+void MainWindow::quitButton_Click(IInspectable const&, RoutedEventArgs const&)
+{
+    Close();
 }
 
 void MainWindow::swapChainPanel_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
