@@ -34,12 +34,14 @@ public:
 
     // DirectX draw resources
     SnakeGame::Synchronized<Resources> resources;
-    ShaderPass pass;
 
+private:
+    ShaderPass pass;
     struct Camera {
         DirectX::XMFLOAT4X4 vp;
     };
     winrt::com_ptr<ID3D11Buffer> instances;
+    winrt::com_ptr<ID3D11Buffer> grid;
     winrt::com_ptr<ID3D11Buffer> camera;
 
 public:

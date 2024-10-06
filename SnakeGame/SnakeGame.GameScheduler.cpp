@@ -15,7 +15,6 @@ GridSquare GridSquare::MakeHead()
     return GridSquare {
         { 0, 0, 0, 0 },
         { .1f, .9f, .1f, 1.f },
-        GridSquare::Type::HEAD,
     };
 }
 
@@ -24,7 +23,6 @@ GridSquare GridSquare::MakeTail(XMINT4 position)
     return GridSquare {
         position,
         Random<XMFLOAT4>({ .2f, 1.f, .2f, 1.f }, { .4f, 1.f, .4f, 1.f }),
-        GridSquare::Type::TAIL,
     };
 }
 
@@ -33,7 +31,6 @@ GridSquare GridSquare::MakeApple()
     return GridSquare {
         Random<XMINT4>(GameScheduler::BOUNDS.first, GameScheduler::BOUNDS.second),
         Random<XMFLOAT4>({ 1, 0, 0, 1 }, { 1, .4f, 0, 1 }),
-        GridSquare::Type::APPLE,
     };
 }
 

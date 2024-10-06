@@ -36,6 +36,23 @@ static void buffer_realloc(ID3D11Device& device, winrt::com_ptr<ID3D11Buffer>& b
     winrt::check_hresult(device.CreateBuffer(&INSTANCE_DESC, nullptr, buffer.put()));
 }
 
+static void Draw(ID3D11DeviceContext& context, ShaderPass& pass, ID3D11Buffer* camera, ID3D11Buffer* instances, size_t n_instances)
+{
+    auto& [m_vertex, m_pixel, m_layout] = pass;
+    context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    context.IASetInputLayout(m_layout.get());
+    constexpr UINT strides = gsl::narrow<UINT>(sizeof SnakeGame::GridSquare);
+    constexpr UINT offsets = 0;
+    context.IASetVertexBuffers(0, 1, &instances, &strides, &offsets);
+
+    context.VSSetShader(m_vertex.get(), 0, 0);
+    context.VSSetConstantBuffers(0, 1, &camera);
+
+    context.PSSetShader(m_pixel.get(), 0, 0);
+
+    context.DrawInstanced(6, n_instances, 0, 0);
+}
+
 CoroutineScheduler::CoroutineScheduler(Token)
     : resources(token)
     , pass(
@@ -61,6 +78,26 @@ CoroutineScheduler::CoroutineScheduler(Token)
               },
           })
 {
+    buffer_realloc(resources->D3DDevice(), grid, sizeof(SnakeGame::GridSquare) * BOUNDS_AREA);
+    {
+        auto& context = resources->D3DContext();
+        D3D11_MAPPED_SUBRESOURCE mapped;
+        context.Map(grid.get(), {}, D3D11_MAP_WRITE_DISCARD, {}, &mapped);
+        std::span<SnakeGame::GridSquare, BOUNDS_AREA> grid_elems {
+            reinterpret_cast<SnakeGame::GridSquare*>(mapped.pData),
+            BOUNDS_AREA,
+        };
+        const auto iter_ij = std::views::cartesian_product(
+            std::views::iota(BOUNDS.first.x, BOUNDS.second.x + 1),
+            std::views::iota(BOUNDS.first.y, BOUNDS.second.y + 1));
+        std::ranges::transform(iter_ij, grid_elems.begin(), [](auto&& ij) {
+            auto const& [i, j] = ij;
+            return SnakeGame::GridSquare {
+                XMINT4 { i, j, 0, 0 },
+                (i + j) % 2 ? XMFLOAT4 { .9, .9f, .9f, 1 } : XMFLOAT4 { .7f, .7f, .7f, 1 },
+            };
+        });
+    }
     buffer_realloc(resources->D3DDevice(), instances, SizeBytesSquares());
     buffer_realloc(resources->D3DDevice(), camera, sizeof(Camera), D3D11_BIND_CONSTANT_BUFFER);
     loop = Run();
@@ -118,7 +155,7 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
                 &cam->vp,
                 XMMatrixMultiplyTranspose(
                     XMMatrixLookAtLH(
-                        XMVectorSet(0, 0, -10, 1),
+                        XMVectorSet(0, 0, -BOUNDS_MAX_DISTANCE, 1),
                         XMVectorSet(0, 0, 0, 0),
                         XMVectorSet(0, 1, 0, 0)),
                     XMMatrixPerspectiveFovLH(
@@ -128,23 +165,8 @@ void CoroutineScheduler::StepDelta(timestep const& delta)
                         1e4f)));
             context.Unmap(camera.get(), {});
 
-            {
-                auto& [m_vertex, m_pixel, m_layout] = pass;
-                context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                context.IASetInputLayout(m_layout.get());
-                constexpr UINT strides = gsl::narrow<UINT>(sizeof SnakeGame::GridSquare);
-                constexpr UINT offsets = 0;
-                std::array pBufferIA { instances.get() };
-                context.IASetVertexBuffers(0, 1, pBufferIA.data(), &strides, &offsets);
-
-                context.VSSetShader(m_vertex.get(), 0, 0);
-                std::array pBufferConstant { camera.get() };
-                context.VSSetConstantBuffers(0, 1, pBufferConstant.data());
-
-                context.PSSetShader(m_pixel.get(), 0, 0);
-
-                context.DrawInstanced(6, SizeSquares(), 0, 0);
-            }
+            Draw(context, pass, camera.get(), grid.get(), BOUNDS_AREA);
+            Draw(context, pass, camera.get(), instances.get(), SizeSquares());
 
             r.DrawEnd();
         }

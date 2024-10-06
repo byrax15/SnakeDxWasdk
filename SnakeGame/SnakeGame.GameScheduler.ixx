@@ -19,7 +19,6 @@ export struct GridSquare final {
 
     XMINT4 position;
     XMFLOAT4 color;
-    Type type;
 
     static GridSquare MakeHead();
     static GridSquare MakeTail(XMINT4 position);
@@ -76,7 +75,10 @@ Vector Random(Vector lower, Vector upper)
 
 export class GameScheduler : public IScheduler {
 public:
-    static constexpr std::pair BOUNDS = { XMINT4 { -5, -5, 0, 0 }, XMINT4 { 4, 4, 0, 0 } };
+    static constexpr std::pair BOUNDS = { XMINT4 { -10, -10, 0, 0 }, XMINT4 { 9, 9, 0, 0 } };
+    static constexpr XMINT4 BOUNDS_DISTANCE = { BOUNDS.second.x - BOUNDS.first.x + 1, BOUNDS.second.y - BOUNDS.first.y + 1, 0, 0 };
+    static constexpr auto BOUNDS_MAX_DISTANCE = std::max(BOUNDS_DISTANCE.x, BOUNDS_DISTANCE.y);
+    static constexpr auto BOUNDS_AREA = BOUNDS_DISTANCE.x * BOUNDS_DISTANCE.y;
 
     enum class GameState {
         RUNNING,
