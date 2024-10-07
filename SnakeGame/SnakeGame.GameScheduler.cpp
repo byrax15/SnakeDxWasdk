@@ -122,7 +122,7 @@ void GameScheduler::StepFixed()
 
     if (ate_apple) {
         apples.emplace_back(GridSquare::MakeApple());
-        
+
         const auto& last_pos = tail.rbegin() == tail.rend() ? head.position : tail.rbegin()->position;
         auto& new_tail = tail.emplace_back(GridSquare::MakeTail(last_pos));
         XMStoreSInt4(&new_tail.position, head_prev_pos);
@@ -133,9 +133,11 @@ void GameScheduler::StepFixed()
         XMStoreSInt4(&tail.rbegin()->position, head_prev_pos);
     }
 
-    static std::random_device g;
-    if (std::uniform_int_distribution<>(0,100*FREQUENCY)(g) == 0) {
-        apples.emplace_back(GridSquare::MakeApple());
+    if (apples.size() < 5) {
+        static std::random_device g;
+        if (std::uniform_int_distribution<>(0, 100)(g) == 0) {
+            apples.emplace_back(GridSquare::MakeApple());
+        }
     }
 }
 

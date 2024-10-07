@@ -15,7 +15,8 @@
                     Unloaded="swapChainPanel_Unloaded"
                     KeyDown="swapChainPanel_KeyDown"
                     >
-        <TextBlock>Score: <Run x:Name="score">0</Run></TextBlock>
+        <TextBlock HorizontalAlignment="Left">Score: <Run x:Name="score">0</Run></TextBlock>
+        <TextBlock HorizontalAlignment="Right">Pause: P</TextBlock>
         <StackPanel x:Name="statusPanel" 
                     Visibility="Collapsed" 
                     Orientation="Vertical" 

@@ -36,13 +36,9 @@ public:
 
     D3D11_VIEWPORT Viewport()
     {
-        UINT count;
-#ifdef _DEBUG
-        m_d3dContext->RSGetViewports(&count, nullptr);
-        assert(count == 1);
-#endif
+        UINT nvp = 1;
         D3D11_VIEWPORT vp;
-        m_d3dContext->RSGetViewports(&count, &vp);
+        m_d3dContext->RSGetViewports(&nvp, &vp);
         return vp;
     }
 
